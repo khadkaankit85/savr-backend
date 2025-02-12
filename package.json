@@ -1,0 +1,32 @@
+{
+  "name": "savr-backend",
+  "version": "1.0.0",
+  "description": "backend for savr application",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "npm run test",
+    "dev": "tsx watch src/index.ts --watch",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khadkaankit85/savr-backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/khadkaankit85/savr-backend/issues"
+  },
+  "homepage": "https://github.com/khadkaankit85/savr-backend#readme",
+  "dependencies": {
+    "express": "^4.21.2",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/swagger-ui-express": "^4.1.7",
+    "@types/yamljs": "^0.2.34"
+  }
+}

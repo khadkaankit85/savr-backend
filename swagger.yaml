@@ -1,0 +1,37 @@
+openapi: 3.0.0
+info:
+  title: SAVR Backend API
+  description: API for the SAVR application backend.
+  version: 1.0.0
+  contact:
+    name: SAVR Team
+    email: support@savrapp.com
+    url: https://savrapp.com
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+paths:
+  /:
+    get:
+      summary: Root endpoint
+      description: Returns a hello world message to confirm the server is running.
+      responses:
+        "200":
+          description: A simple hello world message
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: hello world
+  /api-docs:
+    get:
+      summary: API Documentation
+      description: Swagger UI that serves as the interactive API documentation.
+      responses:
+        "200":
+          description: The Swagger UI page
+          content:
+            text/html:
+              schema:
+                type: string
+                example: Swagger UI page for the API
