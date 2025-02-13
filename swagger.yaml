@@ -35,3 +35,45 @@ paths:
               schema:
                 type: string
                 example: Swagger UI page for the API
+  /api/products/autocompletion:
+    get:
+      summary: Get product name suggestions, usefull for searchbar
+      description: Returns a list of products matching the query string for autocompletion.
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: The partial or full product name to search for.
+          schema:
+            type: string
+            example: "laptop"
+        - name: limit
+          in: query
+          required: false
+          description: The number of suggestions to return (default is 10).
+          schema:
+            type: integer
+            example: 5
+      responses:
+        "200":
+          description: A list of matching product suggestions.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  suggestions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: "Laptop Pro 15"
+                        id:
+                          type: string
+                          example: "002"
+        "400":
+          description: Invalid query parameters
+        "500":
+          description: Server error
