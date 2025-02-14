@@ -11,26 +11,31 @@ interface Product {
     name: string;
     regularPrice: number;
     salePrice: number;
+    highResImage: string;
 }
 
 interface BestBuyResponse {
     products: Product[];
 }
 
-export async function scrape(): Promise<{ name: string; regPrice: number; salePrice: number }[]> {
+export async function scrape(keyword: string): Promise<{ name: string; regPrice: number; salePrice: number; highResImage: string }[]> {
     const page = 1;
-    const searchString = "playstation";
+    const searchString = keyword;
     const URL = `https://www.bestbuy.ca/api/v2/json/search?query=${searchString}&page=${page}`;
 
     try {
         const response = await axios.get<BestBuyResponse>(URL, { headers });
         const data = response.data;
 
+        console.log(data);
+        
+
         // Map and transform the product data
         return data.products.map((product) => ({
             name: product.name,
             regPrice: product.regularPrice,
             salePrice: product.salePrice,
+            highResImage: product.highResImage,
         }));
     } catch (error) {
         console.error('Error fetching data:', error);

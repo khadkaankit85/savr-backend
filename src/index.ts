@@ -2,6 +2,7 @@ import express from "express";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 import dotenv from "dotenv";
+import cors from "cors"
 
 dotenv.config();
 
@@ -12,6 +13,10 @@ import bestbuyRoute from "./routes/bestbuy"
 const app = express();
 const port = process.env.PORT || 3000;
 const swaggerDocument = YAML.load("./swagger.yaml");
+
+
+// Enable CORS
+app.use(cors());
 
 //for docs
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
