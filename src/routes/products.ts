@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import { scrape } from "../scrapes/bestbuy";
 import products from "../dummydb/products";
 const router = express.Router();
 
