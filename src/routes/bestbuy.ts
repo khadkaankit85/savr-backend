@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import { scrapeBestbuy } from "../scrapes/bestbuy";
+import { scrapeBestbuy } from "../scrapes/scraper";
 
 const router = express.Router();
 
