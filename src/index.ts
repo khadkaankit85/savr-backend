@@ -9,6 +9,7 @@ dotenv.config();
 //routes
 import productRoute from "./routes/products";
 import bestbuyRoute from "./routes/bestbuy"
+import { connectToDatabase } from "./utils/mongooseConnect";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -27,6 +28,7 @@ app.use("/api/bestbuy", bestbuyRoute)
 app.get("/", (_req, res) => {
   res.send("hello world");
 });
+
 
 app.listen(port, () => {
   console.log("app is live on port ", port);
