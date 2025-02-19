@@ -60,7 +60,7 @@ interface GiantTigerResponse {
     }[];
 }
 
-export async function scrapeGiantTiger() {
+export async function scrapeGiantTiger(keyword: string): Promise<{title: string; price: number}[]> {
     const URL = "https://ngmhtyxt0t-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(4.15.0)%3B%20Browser%20(lite)&x-algolia-api-key=1ec86e7ee6661988fb72e0c843badcd8&x-algolia-application-id=NGMHTYXT0T"
     const search_query = "table"
 
@@ -90,7 +90,7 @@ export async function scrapeGiantTiger() {
         const data = response.data;
 
         // Parse and transform the product data
-        const parsedData = data.results[0].hits.map((product: any) => ({
+        const parsedData = data.results[0].hits.map((product: GiantTigerProduct) => ({
             title: product.title,
             price: product.price
         }));
