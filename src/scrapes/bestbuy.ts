@@ -18,7 +18,7 @@ interface BestBuyResponse {
     products: Product[];
 }
 
-export async function scrape(keyword: string): Promise<{ name: string; regPrice: number; salePrice: number; highResImage: string }[]> {
+export async function scrapeBestbuy(keyword: string): Promise<{ name: string; regPrice: number; salePrice: number; highResImage: string }[]> {
     const page = 1;
     const searchString = keyword;
     const URL = `https://www.bestbuy.ca/api/v2/json/search?query=${searchString}&page=${page}`;
@@ -41,4 +41,15 @@ export async function scrape(keyword: string): Promise<{ name: string; regPrice:
         console.error('Error fetching data:', error);
         throw new Error('Failed to scrape data'); // Ensure proper error propagation
     }
+}
+
+// "x-algolia-agent": "Algolia%20for%20JavaScript%20(4.15.0)%3B%20Browser%20(lite)",
+// "X-Algolia-API-Key": "1ec86e7ee6661988fb72e0c843badcd8",  # Replace with your API key
+// "X-Algolia-Application-Id": "NGMHTYXT0T",  # Replace with your Application ID
+
+
+export async function scrapeGiantTiger(){
+    const URL = "https://ngmhtyxt0t-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(4.15.0)%3B%20Browser%20(lite)&x-algolia-api-key=1ec86e7ee6661988fb72e0c843badcd8&x-algolia-application-id=NGMHTYXT0T"
+    
+
 }
