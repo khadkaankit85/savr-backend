@@ -27,7 +27,7 @@ export async function scrapeBestbuy(keyword: string): Promise<{ name: string; re
         const response = await axios.get<BestBuyResponse>(URL, { headers });
         const data = response.data;
 
-        console.log(data);
+       // console.log(data);
 
 
         // Map and transform the product data
@@ -95,7 +95,7 @@ export async function scrapeGiantTiger(keyword: string): Promise<{title: string;
             price: product.price
         }));
 
-        console.log(parsedData);
+      //  console.log(parsedData);
 
         return parsedData;
     } catch (error) {
