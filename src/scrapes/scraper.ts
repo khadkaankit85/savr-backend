@@ -122,4 +122,3 @@ export async function scrapeGiantTiger(keyword: string): Promise<{title: string;
 
 }
 
-scrapeBestBuy("shirt")
