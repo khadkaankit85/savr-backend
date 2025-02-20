@@ -1,5 +1,6 @@
 import axios from 'axios';
 import random_user_agent from './agents'; // Ensure this module returns a valid User-Agent string
+import { parse } from 'path';
 
 const headers = {
     "User-Agent": random_user_agent(),
@@ -12,6 +13,7 @@ interface Product {
     regularPrice: number;
     salePrice: number;
     highResImage: string;
+    productUrl: string;
 }
 
 interface BestBuyResponse {
@@ -27,25 +29,36 @@ export async function scrapeBestBuy(keyword: string): Promise<{ name: string; re
         const response = await axios.get<BestBuyResponse>(URL, { headers });
         const data = response.data;
 
-        console.log(data);
+        // console.log(data);
 
 
         // Map and transform the product data
-        return data.products.map((product) => ({
+        const parsedData =  data.products.map((product) => ({
             name: product.name,
             regPrice: product.regularPrice,
             salePrice: product.salePrice,
             highResImage: product.highResImage,
+            url: `https://www.bestbuy.ca${product.productUrl}`
         }));
+
+        console.log(parsedData);
+        
+
+        return parsedData
     } catch (error) {
         console.error('Error fetching data:', error);
         throw new Error('Failed to scrape data'); 
     }
 }
 
+// URL link is not given but the pattern is https://www.gianttiger.com/products/${handle}?variant=${objectID}
 interface GiantTigerProduct {
     title: string;
     price: number;
+    image: string;
+    handle: string;
+    objectID: string;
+
 }
 
 interface GiantTigerResponse {
@@ -86,14 +99,20 @@ export async function scrapeGiantTiger(keyword: string): Promise<{title: string;
     try {
         const response = await axios.post<GiantTigerResponse>(URL, payload, { headers });
         const data = response.data;
+        // console.log(data);
+        
 
         // Parse and transform the product data
         const parsedData = data.results[0].hits.map((product: GiantTigerProduct) => ({
             title: product.title,
-            price: product.price
+            price: product.price,
+            image: product.image,
+            handle: product.handle,
+            objectID: product.objectID,
+            url: `https://www.gianttiger.com/products/${product.handle}?variant=${product.objectID}`
         }));
 
-        console.log(parsedData);
+        // console.log(parsedData);
 
         return parsedData;
     } catch (error) {
@@ -103,3 +122,4 @@ export async function scrapeGiantTiger(keyword: string): Promise<{title: string;
 
 }
 
+scrapeBestBuy("shirt")
