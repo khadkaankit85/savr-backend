@@ -20,7 +20,7 @@ interface BestBuyResponse {
     products: Product[];
 }
 
-export async function scrapeBestBuy(keyword: string): Promise<{ name: string; regPrice: number; salePrice: number; highResImage: string }[]> {
+export async function scrapeBestBuy(keyword: string): Promise<{ title: string; price: number; salePrice: number; image: string; url: string; }[]> {
     const page = 1;
     const searchString = keyword;
     const URL = `https://www.bestbuy.ca/api/v2/json/search?query=${searchString}&page=${page}`;
@@ -34,10 +34,10 @@ export async function scrapeBestBuy(keyword: string): Promise<{ name: string; re
 
         // Map and transform the product data
         const parsedData =  data.products.map((product) => ({
-            name: product.name,
-            regPrice: product.regularPrice,
+            title: product.name,
+            price: product.regularPrice,
             salePrice: product.salePrice,
-            highResImage: product.highResImage,
+            image: product.highResImage,
             url: `https://www.bestbuy.ca${product.productUrl}`
         }));
 
@@ -67,7 +67,7 @@ interface GiantTigerResponse {
     }[];
 }
 
-export async function scrapeGiantTiger(keyword: string): Promise<{title: string; price: number}[]> {
+export async function scrapeGiantTiger(keyword: string): Promise<{title: string; price: number; image: string; url: string}[]> {
     const searchString = keyword
     const algoliaAPIKey = "1ec86e7ee6661988fb72e0c843badcd8"
     const algoliaAPPId = "NGMHTYXT0T"
