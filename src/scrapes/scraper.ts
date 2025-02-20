@@ -18,7 +18,7 @@ interface BestBuyResponse {
     products: Product[];
 }
 
-export async function scrapeBestbuy(keyword: string): Promise<{ name: string; regPrice: number; salePrice: number; highResImage: string }[]> {
+export async function scrapeBestBuy(keyword: string): Promise<{ name: string; regPrice: number; salePrice: number; highResImage: string }[]> {
     const page = 1;
     const searchString = keyword;
     const URL = `https://www.bestbuy.ca/api/v2/json/search?query=${searchString}&page=${page}`;
@@ -39,15 +39,9 @@ export async function scrapeBestbuy(keyword: string): Promise<{ name: string; re
         }));
     } catch (error) {
         console.error('Error fetching data:', error);
-        throw new Error('Failed to scrape data'); // Ensure proper error propagation
+        throw new Error('Failed to scrape data'); 
     }
 }
-
-
-
-// "x-algolia-agent": "Algolia%20for%20JavaScript%20(4.15.0)%3B%20Browser%20(lite)",
-// "X-Algolia-API-Key": "1ec86e7ee6661988fb72e0c843badcd8",  # Replace with your API key
-// "X-Algolia-Application-Id": "NGMHTYXT0T",  # Replace with your Application ID
 
 interface GiantTigerProduct {
     title: string;
@@ -61,30 +55,34 @@ interface GiantTigerResponse {
 }
 
 export async function scrapeGiantTiger(keyword: string): Promise<{title: string; price: number}[]> {
-    const URL = "https://ngmhtyxt0t-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(4.15.0)%3B%20Browser%20(lite)&x-algolia-api-key=1ec86e7ee6661988fb72e0c843badcd8&x-algolia-application-id=NGMHTYXT0T"
-    const search_query = "table"
+    const searchString = keyword
+    const algoliaAPIKey = "1ec86e7ee6661988fb72e0c843badcd8"
+    const algoliaAPPId = "NGMHTYXT0T"
+
+    const URL = `https://ngmhtyxt0t-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(4.15.0)%3B%20Browser%20(lite)&x-algolia-api-key=${algoliaAPIKey}&x-algolia-application-id=${algoliaAPPId}`
 
     const headers = {
-        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Type": "application/json",
         "User-Agent": random_user_agent(),
         "Accept": "*/*",
         "Connection": "keep-alive",
+
     }
 
-    let payload = {
-        "requests": [
+    const payload = {
+        requests: [
             {
-                "indexName": "shopify_products",
-                "hitsPerPage": "1000",
-                "distinct": "false",
-                "analytics": "false",
-                "clickAnalytics": "false",
-                "page": 0,
-                "params": `query=${search_query}&hitsPerPage=100&facets=%5B%22product_type%22%5D&tagFilters=`,
-            }
-        ]
-    }
-
+                indexName: "shopify_products",
+                hitsPerPage: 1000,
+                distinct: false,
+                analytics: false,
+                clickAnalytics: false,
+                page: 0,
+                params: `query=${encodeURIComponent(searchString)}&hitsPerPage=100&facets=["product_type"]&tagFilters=`,
+            },
+        ],
+    };
+    
     try {
         const response = await axios.post<GiantTigerResponse>(URL, payload, { headers });
         const data = response.data;
@@ -103,6 +101,5 @@ export async function scrapeGiantTiger(keyword: string): Promise<{title: string;
         throw new Error('Failed to scrape data'); // Ensure proper error propagation
     }
 
-
-
 }
+

@@ -8,7 +8,7 @@ dotenv.config();
 
 //routes
 import productRoute from "./routes/products";
-import bestbuyRoute from "./routes/bestbuy"
+import scrapeRoute from "./routes/scrape"
 import { connectToDatabase } from "./utils/mongooseConnect";
 
 const app = express();
@@ -23,7 +23,7 @@ app.use(cors());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use("/api/products", productRoute);
-app.use("/api/bestbuy", bestbuyRoute)
+app.use("/api/scrape", scrapeRoute)
 
 app.get("/", (_req, res) => {
   res.send("hello world");
