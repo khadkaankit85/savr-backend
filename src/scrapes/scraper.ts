@@ -121,4 +121,6 @@ export async function scrapeGiantTiger(keyword: string): Promise<{title: string;
     }
 
 }
+console.log("test");
 
+scrapeGiantTiger("couch")
