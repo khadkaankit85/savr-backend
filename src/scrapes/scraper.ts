@@ -2,13 +2,13 @@ import axios from 'axios';
 import random_user_agent from './agents'; // Ensure this module returns a valid User-Agent string
 import { parse } from 'path';
 
-const headers = {
+const defaultHeaders = {
     "User-Agent": random_user_agent(),
     "Accept-Language": "en-US,en;q=0.9",
     "Accept": "application/json",
 };
 
-interface Product {
+interface BestBuyProduct {
     name: string;
     regularPrice: number;
     salePrice: number;
@@ -17,7 +17,22 @@ interface Product {
 }
 
 interface BestBuyResponse {
-    products: Product[];
+    products: BestBuyProduct[];
+}
+
+interface CadTireProduct{
+    url: string;
+    title: string;
+    images:{
+        url:string
+    }[];
+    currentPrice:{
+        value: number;
+    }
+}
+
+interface CadTireResponse{
+    products: CadTireProduct[]
 }
 
 export async function scrapeBestBuy(keyword: string): Promise<{ title: string; price: number; salePrice: number; image: string; url: string; }[]> {
@@ -26,14 +41,14 @@ export async function scrapeBestBuy(keyword: string): Promise<{ title: string; p
     const URL = `https://www.bestbuy.ca/api/v2/json/search?query=${searchString}&page=${page}`;
 
     try {
-        const response = await axios.get<BestBuyResponse>(URL, { headers });
+        const response = await axios.get<BestBuyResponse>(URL, { headers: defaultHeaders });
         const data = response.data;
 
         // console.log(data);
 
 
         // Map and transform the product data
-        const parsedData =  data.products.map((product) => ({
+        const parsedData =  data.products.map((product: BestBuyProduct) => ({
             title: product.name,
             price: product.regularPrice,
             salePrice: product.salePrice,
@@ -117,10 +132,45 @@ export async function scrapeGiantTiger(keyword: string): Promise<{title: string;
         return parsedData;
     } catch (error) {
         console.error('Error fetching data:', error);
-        throw new Error('Failed to scrape data'); // Ensure proper error propagation
+        throw new Error('Failed to scrape data');
     }
 
 }
-console.log("test");
 
-scrapeGiantTiger("couch")
+export async function scrapeCadTire(keyword: string){
+    const searchString = keyword;
+    const cadTireSubKey: string = "c01ef3612328420c9f5cd9277e815a0e"
+    const storeCode: string = "600"
+
+    const URL: string = `https://apim.canadiantire.ca/v1/search/v2/search?q=${searchString}&store=${storeCode}`
+
+    const headers = {
+        "Content-Type": "application/json",
+        "User-Agent": random_user_agent(),
+        "Accept": "*/*",
+        "Connection": "keep-alive",
+        "ocp-apim-subscription-key": `${cadTireSubKey}`
+    }
+
+    try{
+        const response = await axios.get<CadTireResponse>(URL, {headers})
+        const data = response.data;
+ 
+        const parsedData = data.products.map((product: CadTireProduct) => ({
+            title: product.title,
+            url: product.url,
+            currentPrice: product.currentPrice.value,
+            image: product.images[0].url
+        }))
+
+        console.log(parsedData);
+        return parsedData;
+
+
+    } catch(error){
+        console.log(`Error fetching data: `, error);
+        throw new Error(`Failed to scrape data`);
+        
+    }
+
+}
