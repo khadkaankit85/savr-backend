@@ -7,7 +7,6 @@ const router = express.Router();
 
 router.get("/scrape", async (req: Request, res: Response) => {
     const keyword = req.query.keyword as string;
-    console.log(`Scrape request for ${keyword}`);
 
     try {
         const results = await Promise.allSettled([
@@ -28,12 +27,12 @@ router.get("/scrape", async (req: Request, res: Response) => {
             console.error('GiantTiger scrape error:', results[1].reason);
         }
         if (results[2].status === 'rejected'){
-            console.log('CadTire scrape error: ', results[2].reason);
-            
+            console.log('CadTire scrape error: ', results[2].reason);     
         }
 
         res.json({ bestBuy: bestBuyData, giantTiger: giantTigerData, cadTire: cadTireData });
     } catch (error) {
+        console.error('Error fetching data:', error);
         res.status(500).json({ message: "Error fetching data" });
     }
 });

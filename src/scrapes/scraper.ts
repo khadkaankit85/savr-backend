@@ -1,6 +1,7 @@
 import axios from 'axios';
 import random_user_agent from './agents'; // Ensure this module returns a valid User-Agent string
 import { parse } from 'path';
+import { log } from 'console';
 
 const defaultHeaders = {
     "User-Agent": random_user_agent(),
@@ -20,18 +21,18 @@ interface BestBuyResponse {
     products: BestBuyProduct[];
 }
 
-interface CadTireProduct{
+interface CadTireProduct {
     url: string;
     title: string;
-    images:{
-        url:string
+    images: {
+        url: string
     }[];
-    currentPrice:{
+    currentPrice: {
         value: number;
     }
 }
 
-interface CadTireResponse{
+interface CadTireResponse {
     products: CadTireProduct[]
 }
 
@@ -48,7 +49,7 @@ export async function scrapeBestBuy(keyword: string): Promise<{ title: string; p
 
 
         // Map and transform the product data
-        const parsedData =  data.products.map((product: BestBuyProduct) => ({
+        const parsedData = data.products.map((product: BestBuyProduct) => ({
             title: product.name,
             price: product.regularPrice,
             salePrice: product.salePrice,
@@ -56,13 +57,13 @@ export async function scrapeBestBuy(keyword: string): Promise<{ title: string; p
             url: `https://www.bestbuy.ca${product.productUrl}`
         }));
 
-        console.log(parsedData);
-        
+        // console.log(parsedData);
+
 
         return parsedData
     } catch (error) {
         console.error('Error fetching data:', error);
-        throw new Error('Failed to scrape data'); 
+        throw new Error('Failed to scrape data');
     }
 }
 
@@ -82,7 +83,7 @@ interface GiantTigerResponse {
     }[];
 }
 
-export async function scrapeGiantTiger(keyword: string): Promise<{title: string; price: number; image: string; url: string}[]> {
+export async function scrapeGiantTiger(keyword: string): Promise<{ title: string; price: number; image: string; url: string }[]> {
     const searchString = keyword
     const algoliaAPIKey = "1ec86e7ee6661988fb72e0c843badcd8"
     const algoliaAPPId = "NGMHTYXT0T"
@@ -110,12 +111,12 @@ export async function scrapeGiantTiger(keyword: string): Promise<{title: string;
             },
         ],
     };
-    
+
     try {
         const response = await axios.post<GiantTigerResponse>(URL, payload, { headers });
         const data = response.data;
         // console.log(data);
-        
+
 
         // Parse and transform the product data
         const parsedData = data.results[0].hits.map((product: GiantTigerProduct) => ({
@@ -137,7 +138,7 @@ export async function scrapeGiantTiger(keyword: string): Promise<{title: string;
 
 }
 
-export async function scrapeCadTire(keyword: string){
+export async function scrapeCadTire(keyword: string) {
     const searchString = keyword;
     const cadTireSubKey: string = "c01ef3612328420c9f5cd9277e815a0e"
     const storeCode: string = "600"
@@ -152,25 +153,34 @@ export async function scrapeCadTire(keyword: string){
         "ocp-apim-subscription-key": `${cadTireSubKey}`
     }
 
-    try{
-        const response = await axios.get<CadTireResponse>(URL, {headers})
+    try {
+        const response = await axios.get<CadTireResponse>(URL, { headers })
         const data = response.data;
- 
-        const parsedData = data.products.map((product: CadTireProduct) => ({
-            title: product.title,
-            url: product.url,
-            currentPrice: product.currentPrice.value,
-            image: product.images[0].url
-        }))
-
-        console.log(parsedData);
-        return parsedData;
 
 
-    } catch(error){
+        // log(data.products)
+        if (!data.products || data.products.length === 0) {
+            // logic for brand search
+            // log(data)
+
+        } else {
+
+            const parsedData = data.products.map((product: CadTireProduct) => ({
+                title: product.title,
+                url: product.url,
+                currentPrice: product.currentPrice.value,
+                image: product.images[0].url
+            }))
+
+            // log("this is the parsed data")
+            // console.log(parsedData);
+            return parsedData;
+        }
+
+    } catch (error) {
         console.log(`Error fetching data: `, error);
         throw new Error(`Failed to scrape data`);
-        
+
     }
 
 }
