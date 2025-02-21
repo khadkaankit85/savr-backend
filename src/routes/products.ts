@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import { scrapeBestbuy } from "../scrapes/scraper";
+import { scrapeBestBuy } from "../scrapes/scraper";
 import products from "../dummydb/products";
 import productModel from "../schema/productSchema";
 import { log } from "console";
