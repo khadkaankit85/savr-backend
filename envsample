@@ -1,0 +1,37 @@
+# ----------------------------
+# 🔧 Development Environment
+# ----------------------------
+
+ENVIRONMENT=dev
+
+
+# OAuth Credentials (Use test credentials)
+GOOGLE_OAUTHCLIENT=your-dev-client-id
+GOOGLE_OAUTHSECRET=your-dev-client-secret
+
+# Email Credentials for Sending OTP (Test Email)
+EMAIL_ADDRESS=test@example.com
+EMAIL_PASSWORD=testpassword123
+
+
+# ----------------------------
+# 🚀 Production Environment
+# ----------------------------
+# Uncomment and replace these values when running in production
+
+# ENVIRONMENT=prod
+
+# Production Database (MongoDB)
+# DATABASE_URL=mongodb+srv://username:password@cluster.mongodb.net/appname
+
+# OAuth Credentials (Use real client credentials)
+# GOOGLE_OAUTHCLIENT=your-prod-client-id
+# GOOGLE_OAUTHSECRET=your-prod-client-secret
+
+# Frontend URL (Deployed Frontend URL)
+# FRONTEND_URL=https://yourfrontend.com
+
+# Email Credentials for Sending OTP (Production Email)
+# EMAIL_ADDRESS=admin@yourdomain.com
+# EMAIL_PASSWORD=your-secure-password
+
