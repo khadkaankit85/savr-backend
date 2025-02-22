@@ -77,3 +77,89 @@ paths:
           description: Invalid query parameters
         "500":
           description: Server error
+
+/api/user/register:
+  post:
+    summary: Register a new user with email and password
+    description: Allows a user to register with an email and password. A verification email will be sent to confirm their account.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              fullName:
+                type: string
+                description: The full name of the user.
+                example: "John Doe"
+              username:
+                type: string
+                description: The desired username for the user.
+                example: "john_doe"
+              email:
+                type: string
+                description: The email address of the user.
+                example: "john.doe@example.com"
+              password:
+                type: string
+                description: The password of the user.
+                example: "password123"
+    responses:
+      "201":
+        description: User successfully registered. A verification email is sent.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "john_doe"
+                fullName:
+                  type: string
+                  example: "John Doe"
+                email:
+                  type: string
+                  example: "john.doe@example.com"
+                isVerified:
+                  type: boolean
+                  example: false
+      "400":
+        description: Bad Request. This can occur if the email or username already exists.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "User with this email or username already exists."
+      "401":
+        description: Unauthorized. Invalid data was sent in the request body (e.g., missing required fields).
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Invalid email format"
+                      path:
+                        type: string
+                        example: "email"
+      "500":
+        description: Internal Server Error. An error occurred while processing the request or saving to the database.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Couldn't create the user in the database, please try again."
