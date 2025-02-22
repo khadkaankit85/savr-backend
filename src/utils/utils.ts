@@ -64,3 +64,11 @@ export const getAccountVerificationEmailText = (link: string) => {
     </html>
   `;
 };
+
+/**
+ * checks if the passed amount of time in Milliseconds (second argument) has passed since the passed date(first argument)
+ **/
+export const isExpired = (
+  tokenCreationDate: Date,
+  timeInMilliseconds: number,
+) => new Date().getTime() - tokenCreationDate.getTime() > timeInMilliseconds;

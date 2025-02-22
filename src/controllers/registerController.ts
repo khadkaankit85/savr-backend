@@ -36,6 +36,7 @@ const registerWithEmailAndPassword = async (req: Request, res: Response) => {
       try {
         //on success,
         const token = crypto.randomUUID();
+        console.log(token);
         const url = `${appConfigs.frontendUrl}/accountverification?username=${temproaryUsername}&token=${token}`;
         //create the user
         const createdUser = await User.insertOne({
