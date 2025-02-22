@@ -1,0 +1,11 @@
+1. What if a user's account is not verified;
+1.1.If an user's email is not verified, users will still be able to save their bookmarks, but won't be notified on price drops
+and if the state of the account remains unverified for a fixed amount of time (e.g a week) the account will be deleted
+1.2. User won't be able to modify there personal information and also won't be able to send too many requests to the api as well
+
+2. How to verify user's gmail account?
+2.1. We will send an email to the user with a button, which onpress verifies their account
+
+3. Todo
+3.1 Limit users from changing their data frequently
+3.2 Add other email providers for sending email

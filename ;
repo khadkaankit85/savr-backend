@@ -1,4 +1,4 @@
-import mongoose, { CallbackError } from "mongoose";
+import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 const { Schema } = mongoose;
 
@@ -21,7 +21,7 @@ const userSchema = new Schema({
     unique: true,
     lowercase: true,
   },
-  /* this is replaced by link sent to email
+  /** this is replaced by link sent to email
   otp: {
     lastOtp: {
       type: Number,
@@ -34,6 +34,7 @@ const userSchema = new Schema({
   },
   */
   additionalInfo: {
+    required: true,
     accountCreatedDate: {
       type: Date,
       default: Date.now(),
@@ -44,7 +45,7 @@ const userSchema = new Schema({
     },
     token: {
       value: {
-        type: String,
+        type: Number,
         required: true,
       },
       createdAt: {
@@ -57,39 +58,44 @@ const userSchema = new Schema({
         default: 0,
         required: true,
       },
+      required: true,
     },
   },
 });
+
+//hash and unhash the password
 userSchema.pre("save", async function (next) {
   const user = this;
 
-  // Hash password if modified
   if (user.isModified("password")) {
     try {
       const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(user.password, salt);
-    } catch (error) {
-      return next(error as CallbackError);
-    }
-  }
-
-  // Update token metadata if token value changes
-  if (user.isModified("additionalInfo.token.value")) {
-    if (user.additionalInfo && user.additionalInfo.token) {
-      user.additionalInfo.token.createdAt = new Date();
-      user.additionalInfo.token.requestCount = 0;
+      const hashedPassword = await bcrypt.hash(user.password, salt);
+      user.password = hashedPassword;
+    } catch (error: any) {
+      next(error);
     }
   }
 
   next();
 });
 
-// Method to compare passwords
 userSchema.methods.comparePassword = async function (
   candidatePassword: string,
 ) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  const user = this;
+  return await bcrypt.compare(candidatePassword, user.password);
 };
 
+//everytime token changes, update the createdAt value and request count value
+userSchema.pre("save", async function (next) {
+  if (this.isModified("additionalInfo.token.value")) {
+    this.additionalInfo.token.createdAt = new Date();
+    this.additionalInfo.token.requestCount = 0;
+  }
+  next();
+});
+
 const User = mongoose.model("User", userSchema);
+
 export default User;

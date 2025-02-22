@@ -1,8 +1,5 @@
 import express, { Request, Response } from "express";
-import { scrapeBestBuy } from "../scrapes/scraper";
-import products from "../dummydb/products";
 import productModel from "../schema/productSchema";
-import { log } from "console";
 const router = express.Router();
 
 //<domain>/<routername>/autocompletion?query=<productname>&limit=<limit>
