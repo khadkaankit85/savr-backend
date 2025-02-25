@@ -14,13 +14,15 @@ const emailThatSendsOtp = process.env.EMAIL_ADDRESS;
 const emailPassword = process.env.EMAIL_PASSWORD;
 //we rarely define port in .env file or environment variable as it is managed by hosting provider most of the time
 const port = process.env.PORT as number | undefined;
+const sessionSecret = process.env.SESSION_SECRET_TOKEN;
 
 //if compulsory envs are missing
 if (
   !oauthClientId ||
   !oauthClientSecret ||
   !emailThatSendsOtp ||
-  !emailPassword
+  !emailPassword ||
+  !sessionSecret
 ) {
   throw new Error(
     "please check for compulsory envs in your environment variable, check envsample for required envs",
@@ -49,6 +51,8 @@ type Config = {
   emailThatSendsOtp: string;
   emailPassword: string;
   port: number;
+  sessionSecret: string;
+  environment: "dev" | "prod";
 };
 
 const constConfig = {
@@ -56,6 +60,8 @@ const constConfig = {
   oauthClientSecret,
   emailThatSendsOtp,
   emailPassword,
+  sessionSecret,
+  environment,
 };
 
 const prodConfig: Config = {

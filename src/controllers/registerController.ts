@@ -47,6 +47,14 @@ const registerWithEmailAndPassword = async (req: Request, res: Response) => {
           additionalInfo: { token: { value: token } },
         });
 
+        //and send 201 with userdata
+        res.status(201).json({
+          username: createdUser.username,
+          fullName: createdUser.fullName,
+          email: createdUser.email,
+          isVerified: createdUser.additionalInfo?.isVerified || false,
+        });
+
         //send the email to verify their account
         try {
           const emailSent = sendEmail(
@@ -58,16 +66,6 @@ const registerWithEmailAndPassword = async (req: Request, res: Response) => {
         } catch (e) {
           //console.log("couldnt send the email");
         }
-
-        //#todo: pass session id here
-
-        //and send 201 with userdata
-        res.status(201).json({
-          username: createdUser.username,
-          fullName: createdUser.fullName,
-          email: createdUser.email,
-          isVerified: createdUser.additionalInfo?.isVerified || false,
-        });
       } catch (e) {
         //if couldn't create in the database, send 500
         console.log(e);
