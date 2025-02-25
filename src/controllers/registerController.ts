@@ -47,12 +47,25 @@ const registerWithEmailAndPassword = async (req: Request, res: Response) => {
           additionalInfo: { token: { value: token } },
         });
 
+        const dataToBeSent = {
+          username: createdUser.username,
+          fullName: createdUser.fullName,
+          email: createdUser.email,
+          //watch out here, isVerified and role cannot be undefined as per my understanding of the code i have written but still i dont want ts to trust me:)
+          isVerified: createdUser.additionalInfo?.isVerified || false,
+          role: createdUser.additionalInfo?.role || "user",
+        };
+
+        //give session to the user
+        req.session.user = dataToBeSent;
+
         //and send 201 with userdata
         res.status(201).json({
           username: createdUser.username,
           fullName: createdUser.fullName,
           email: createdUser.email,
           isVerified: createdUser.additionalInfo?.isVerified || false,
+          role: createdUser.additionalInfo?.role,
         });
 
         //send the email to verify their account

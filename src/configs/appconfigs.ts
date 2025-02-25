@@ -72,7 +72,7 @@ const prodConfig: Config = {
 };
 
 const devConfig: Config = {
-  frontendUrl: "http://localhost:5173/",
+  frontendUrl: "http://localhost:5173",
   databaseUrl: "mongodb://localhost:27017/savr",
   port: port || 3000,
   ...constConfig,

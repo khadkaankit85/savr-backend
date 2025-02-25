@@ -47,7 +47,13 @@ if (appConfigs.environment === "prod") {
 }
 
 // Enable CORS
-app.use(cors());
+app.use(
+  cors({
+    origin: appConfigs.frontendUrl,
+    methods: ["GET", "POST"],
+    credentials: true,
+  }),
+);
 app.use(express.json());
 
 //for docs
