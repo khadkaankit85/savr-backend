@@ -311,6 +311,10 @@ export async function scrapeSportCheck(keyword: string) {
 
 
 // Call the function to test it
-// scrapeSimons("shirt")
+scrapeSimons("shirt")
+  .then(data => console.log(data))
+  .catch(error => console.error(error));
+
+// scrapeSportCheck("Shoes")
 //   .then(data => console.log(data))
 //   .catch(error => console.error(error));
