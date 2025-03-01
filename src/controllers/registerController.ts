@@ -13,7 +13,7 @@ const registerWithEmailAndPassword = async (req: Request, res: Response) => {
 
   //if invalid data, then send 401
   if (user.error) {
-    res.status(401).json({ error: user.error.errors });
+    res.status(401).json({ error: user.error.message });
     return;
   }
 
