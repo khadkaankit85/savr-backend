@@ -15,6 +15,7 @@ import userRoute from "./routes/user";
 import { connectToDatabase } from "./utils/mongooseConnect";
 import { appConfigs } from "./configs/appconfigs";
 import mongoose from "mongoose";
+import passport from "passport";
 
 dotenv.config();
 const app = express();
@@ -45,6 +46,8 @@ app.use(
 if (appConfigs.environment === "prod") {
   app.set("trust proxy", 1);
 }
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Enable CORS
 app.use(
@@ -69,7 +72,6 @@ app.use("/api", async (req: Request, res: Response, next: NextFunction) => {
     }
   }
 
-  console.log(await productModel.find({}));
   next();
 });
 app.use("/api/scrape", scrapeRoute);

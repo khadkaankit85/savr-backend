@@ -10,6 +10,7 @@ const databaseUrl = process.env.DATABASE_URL;
 const oauthClientId = process.env.GOOGLE_OAUTHCLIENT;
 const oauthClientSecret = process.env.GOOGLE_OAUTHSECRET;
 const frontendUrl = process.env.FRONTEND_URL;
+const backendUrl = process.env.FRONTEND_URL;
 const emailThatSendsOtp = process.env.EMAIL_ADDRESS;
 const emailPassword = process.env.EMAIL_PASSWORD;
 //we rarely define port in .env file or environment variable as it is managed by hosting provider most of the time
@@ -53,6 +54,7 @@ type Config = {
   port: number;
   sessionSecret: string;
   environment: "dev" | "prod";
+  backendUrl: string;
 };
 
 const constConfig = {
@@ -68,12 +70,14 @@ const prodConfig: Config = {
   frontendUrl: frontendUrl!,
   databaseUrl: databaseUrl!,
   port: port!,
+  backendUrl: backendUrl!,
   ...constConfig,
 };
 
 const devConfig: Config = {
   frontendUrl: "http://localhost:5173",
   databaseUrl: "mongodb://localhost:27017/savr",
+  backendUrl: "http://localhost:3000",
   port: port || 3000,
   ...constConfig,
 };

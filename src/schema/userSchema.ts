@@ -34,6 +34,14 @@ const userSchema = new Schema({
   },
   */
   additionalInfo: {
+    image: {
+      type: String,
+      default: null,
+    },
+    googleId: {
+      type: String,
+      default: null,
+    },
     accountCreatedDate: {
       type: Date,
       default: Date.now(),
