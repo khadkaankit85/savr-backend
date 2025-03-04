@@ -13,7 +13,7 @@ const defaultHeaders = {
 };
 
 
-const URL = "https://www.bestbuy.ca/en-ca/product/playstation-5-pro-console/18477929?icmp=Recos_4across_y_mght_ls_lk"
+const URL = "https://www.bestbuy.ca/en-ca/product/nick-jr-paw-patrol-6-bin-toy-organizer-red-blue/14716314?icmp=Recos_5across_yr_rcntly_vwd_home&referrer=Home+Reco_rcntly_vwd"
 
 
 /**
@@ -125,8 +125,42 @@ export function getBestBuyScriptTagOnly(html: string): string | null {
         console.error("Error extracting and parsing product data:", error);
         return null;
     }
+}
+
+/**
+ * Fixes incomplete JSON from the BestBuy script by adding missing closing braces and wrapping it in {}
+ *
+ * @param jsonString - The incomplete JSON string
+ * @returns string - The fixed JSON string
+ */
+export function fixIncompleteJSON(jsonString: string): string {
+    try {
+        jsonString = jsonString.trim();
+
+        // Count opening and closing braces
+        const openingBraces = (jsonString.match(/{/g) || []).length;
+        const closingBraces = (jsonString.match(/}/g) || []).length;
+
+        // Add missing closing braces
+        if (closingBraces < openingBraces) {
+            jsonString += "}".repeat(openingBraces - closingBraces);
+        }
+
+        // Wrap in {} if not already wrapped
+        if (!jsonString.startsWith("{") || !jsonString.endsWith("}")) {
+            jsonString = `{${jsonString}}`;
+        }
+
+        // Validate JSON format
+        JSON.parse(jsonString); // Throws an error if invalid
+
+        return jsonString;
+    } catch (error) {
+        console.error("Error fixing JSON:", error);
+        throw new Error("Failed to fix JSON. Please check the input format.");
     }
-    
+}
+
 
 // DONT USE. WORKS but SUCKS as raw html has A LOT of numbers. Just narrow down based on tags until you get the price.
 export async function priceUsingRegex(html: string): Promise<void> {
@@ -164,10 +198,14 @@ export async function priceUsingRegex(html: string): Promise<void> {
 (async () => {
     const html = await getRawHTML();
     const bodyResult = getRelevantHTMLJSDOM(html);
-    const scriptResult = getBestBuyScriptTagOnly(bodyResult)
+    const scriptResult = getBestBuyScriptTagOnly(bodyResult);
 
-    const final = scriptResult ? scriptResult : "";
+    // Ensure scriptResult is not null before passing it to fixIncompleteJSON
+    const fixedJSON = scriptResult ? fixIncompleteJSON(scriptResult) : "";
 
+    // Assign the final value (fixedJSON or an empty string)
+    const final = fixedJSON;
 
+    // Write the final output to a file
     fs.writeFileSync("output.json", final);
 })();
