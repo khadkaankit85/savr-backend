@@ -13,14 +13,13 @@ const defaultHeaders = {
 };
 
 
-const URL = "https://www.bestbuy.ca/en-ca/product/nick-jr-paw-patrol-6-bin-toy-organizer-red-blue/14716314?icmp=Recos_5across_yr_rcntly_vwd_home&referrer=Home+Reco_rcntly_vwd"
 
 
 /**
  * Gets raw html output without loading a browser
  * @returns string
  */
-export async function getRawHTML(): Promise<string> {
+export async function getRawHTML(URL: string): Promise<string> {
 
     log("Trying...")
     try {
@@ -42,7 +41,7 @@ export async function getRawHTML(): Promise<string> {
  * Gets raw html with loading a browser (for dynamic content)
  * @returns  string
  */
-export async function getPuppetRawHTML(): Promise<string> {
+export async function getPuppetRawHTML(URL: string): Promise<string> {
     log("Launching puppet")
     const browser = await puppeteer.launch();
     log("Puppet: opening page...")
@@ -195,17 +194,15 @@ export async function priceUsingRegex(html: string): Promise<void> {
 // })();
 
 // TEST WITHOUT PUPPET -> SAME AS WITH PUPPET RESULTS BUT FASTER
-(async () => {
-    const html = await getRawHTML();
-    const bodyResult = getRelevantHTMLJSDOM(html);
-    const scriptResult = getBestBuyScriptTagOnly(bodyResult);
+// (async () => {
+//     const html = await getRawHTML();
+//     const bodyResult = getRelevantHTMLJSDOM(html);
+//     const scriptResult = getBestBuyScriptTagOnly(bodyResult);
 
-    // Ensure scriptResult is not null before passing it to fixIncompleteJSON
-    const fixedJSON = scriptResult ? fixIncompleteJSON(scriptResult) : "";
+//     // Check if scriptResult is not null before passing it to fixIncompleteJSON stupid typescript
+//     const fixedJSON = scriptResult ? fixIncompleteJSON(scriptResult) : "";
+//     const final = fixedJSON;
 
-    // Assign the final value (fixedJSON or an empty string)
-    const final = fixedJSON;
-
-    // Write the final output to a file
-    fs.writeFileSync("output.json", final);
-})();
+//     // Write the final output to a file (just for testing)
+//     fs.writeFileSync("output.json", final);
+// })();
