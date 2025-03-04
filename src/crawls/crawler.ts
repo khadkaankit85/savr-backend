@@ -169,5 +169,5 @@ export async function priceUsingRegex(html: string): Promise<void> {
     const final = scriptResult ? scriptResult : "";
 
 
-    fs.writeFileSync("output.html", final);
+    fs.writeFileSync("output.json", final);
 })();
