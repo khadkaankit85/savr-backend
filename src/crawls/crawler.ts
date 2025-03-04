@@ -28,8 +28,8 @@ export async function getRawHTML(URL: string): Promise<string> {
         });
         const htmlContent = response.data as string;
 
-        fs.writeFileSync("output.html", htmlContent)
-        log("HTML content saved")
+        // fs.writeFileSync("output.html", htmlContent)
+        // log("HTML content saved")
         return htmlContent
     } catch (error) {
         console.error("Error fetching the HTML");
