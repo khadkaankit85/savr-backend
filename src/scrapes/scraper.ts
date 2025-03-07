@@ -284,7 +284,7 @@ export async function scrapeSportCheck(keyword: string) {
     const response = await axios.get<CadTireResponse>(URL, { headers });
     const data = response.data;
 
-    console.log(data);
+    // console.log(data);
 
 
     // log(data.products)
@@ -300,7 +300,7 @@ export async function scrapeSportCheck(keyword: string) {
       }));
 
       log("this is the parsed data")
-      console.log(parsedData);
+      // console.log(parsedData);
       return parsedData;
     }
   } catch (error) {
@@ -311,9 +311,9 @@ export async function scrapeSportCheck(keyword: string) {
 
 
 // Call the function to test it
-scrapeSimons("shirt")
-  .then(data => console.log(data))
-  .catch(error => console.error(error));
+// scrapeSimons("shirt")
+//   .then(data => console.log(data))
+//   .catch(error => console.error(error));
 
 // scrapeSportCheck("Shoes")
 //   .then(data => console.log(data))

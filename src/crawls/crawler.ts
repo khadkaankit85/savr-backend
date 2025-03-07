@@ -2,6 +2,7 @@ import axios from "axios"
 import random_user_agent from "../scrapes/agents";
 import { log } from "console";
 import fs from "fs"
+import cheerio from "cheerio";
 import { JSDOM } from "jsdom"
 import puppeteer from "puppeteer";
 
