@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { getRawHTML, getRelevantHTMLJSDOM, getBestBuyScriptTagOnly, fixIncompleteJSON } from "../crawls/crawler";
 import { log } from "console";
+import { string } from "zod";
 
 
 
@@ -34,9 +35,13 @@ router.get("/BB", async (req: Request, res: Response) => {
         const scriptResult = getBestBuyScriptTagOnly(bodyResult);
         const fixedJSON: string = scriptResult ? fixIncompleteJSON(scriptResult) : "";
 
-        const finalData: JSON = JSON.parse(fixedJSON);
+        const finalData: { [key: string]: any } = JSON.parse(fixedJSON);
+
+        // Add the URL link into the JSON object
+        finalData.url = url;
 
         res.json(finalData);
+        // Then push the data to the database
         
     } catch (error) {
         console.error('Error fetching data:', error);
