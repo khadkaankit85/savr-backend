@@ -33,7 +33,7 @@ const productSchema = new Schema({
     isMarketplace: Boolean,
     isAdvertised: Boolean,
     isOnlineOnly: Boolean,
-    regularPrice: String,
+    regularPrice: Array,
     isClearance: Boolean,
     additionalImages: [String],
     altLangSeoText: String,
