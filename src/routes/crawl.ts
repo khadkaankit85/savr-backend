@@ -3,6 +3,7 @@ import { getRawHTML, getRelevantHTMLJSDOM, getBestBuyScriptTagOnly, fixIncomplet
 import { log } from "console";
 import { string } from "zod";
 import bestBuy_products from "../models/bestBuyData";
+import User from "../schema/userSchema";
 
 
 
@@ -22,13 +23,15 @@ import bestBuy_products from "../models/bestBuyData";
 
 const router = express.Router();
 
-router.get("/BB", async (req: Request, res: Response) => {
+router.get("/BB", async (req: Request, res: Response): Promise<void> => {
     console.log(`Crawling URL request: ${req.query.url}`);
     
-    const url = req.query.url as string;
+    const url = req.query.url as string
+    const userId = req.query.userId as string;
 
     if (!url){
         res.status(400).json({ message: "URL is required" });
+        return;
     }
     try {
         const html = await getRawHTML(url);
@@ -54,7 +57,21 @@ router.get("/BB", async (req: Request, res: Response) => {
 
 
         log('Final Mongo push: ', productData)
-        await bestBuy_products.create(productData);
+
+        // Insert data into MongoDB
+        const newProduct = await bestBuy_products.create(productData);
+
+
+        // Find the user and add the product reference
+        const user = await User.findById(userId);
+        if (user) {
+            user.bestBuyProducts.push(newProduct._id);
+            await user.save();
+        } else {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+        
         res.json(finalData);
 
 

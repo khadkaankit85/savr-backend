@@ -1,5 +1,6 @@
 import mongoose, { CallbackError } from "mongoose";
 import bcrypt from "bcrypt";
+import bestBuy_products from "../models/bestBuyData";
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
@@ -59,6 +60,10 @@ const userSchema = new Schema({
       },
     },
   },
+  bestBuyProducts:[{
+    type: Schema.Types.ObjectId,
+    ref: 'bestBuy_products'
+  }]
 });
 userSchema.pre("save", async function (next) {
   const user = this;
