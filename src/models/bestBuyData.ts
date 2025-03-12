@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 const { Schema, model } = mongoose;
 
-const imageSchema = new Schema({
+
+const imageSchema = new Schema({ 
     mimeType: String,
     size: {
         width: Number,
@@ -15,7 +16,7 @@ const mediaSchema = new Schema({
             '400x400': imageSchema
         }
     }
-});
+}); 
 
 const productSchema = new Schema({
     ehf: Number,
@@ -44,7 +45,8 @@ const productSchema = new Schema({
     isPreorderable: Boolean,
     isSpecialDelivery: Boolean,
     longDescription: String,
-    media: mediaSchema
+    media: mediaSchema,
+    url: String,
 });
 
 const bestBuy_products = model('bestBuy_products', productSchema);

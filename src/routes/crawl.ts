@@ -39,15 +39,22 @@ router.get("/BB", async (req: Request, res: Response) => {
         const finalData: { [key: string]: any } = JSON.parse(fixedJSON);
 
         // Add the URL link into the JSON object
-        finalData.url = url;
+        finalData.product.url = url;
 
         // Reformat JSON data so that price is an priceList[] => (price, date) for later pulling for charting
 
-        const productData = finalData.product
+        // This is for MONGO:
+        let productData = finalData.product
+
+        // productData = {
+        //     ...finalData.product,
+        //     url
+        // }
+
 
 
         log('Final Mongo push: ', productData)
-        await bestBuy_products.create(finalData);
+        await bestBuy_products.create(productData);
         res.json(finalData);
 
 

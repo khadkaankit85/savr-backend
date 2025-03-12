@@ -73,7 +73,7 @@ userSchema.pre("save", async function (next) {
     }
   }
 
-  // Update token metadata if token value changes
+  // Update token metadata if token value chang es
   if (user.isModified("additionalInfo.token.value")) {
     if (user.additionalInfo && user.additionalInfo.token) {
       user.additionalInfo.token.createdAt = new Date();
