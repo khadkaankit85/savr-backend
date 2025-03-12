@@ -193,16 +193,19 @@ export async function priceUsingRegex(html: string): Promise<void> {
 //     fs.writeFileSync("output.html", final);
 // })();
 
+
 // TEST WITHOUT PUPPET -> SAME AS WITH PUPPET RESULTS BUT FASTER
-// (async () => {
-//     const html = await getRawHTML();
-//     const bodyResult = getRelevantHTMLJSDOM(html);
-//     const scriptResult = getBestBuyScriptTagOnly(bodyResult);
 
-//     // Check if scriptResult is not null before passing it to fixIncompleteJSON stupid typescript
-//     const fixedJSON = scriptResult ? fixIncompleteJSON(scriptResult) : "";
-//     const final = fixedJSON;
+const url_test = "https://www.bestbuy.ca/en-ca/product/asus-rog-ally-7-1080p-touch-gaming-console-amd-z1-extreme-radeon-navi3-16gb-ram-512gb-ssd-windows-11-xbox-gamepass/17083904";
+(async () => {
+    const html = await getRawHTML(url_test);
+    const bodyResult = getRelevantHTMLJSDOM(html);
+    const scriptResult = getBestBuyScriptTagOnly(bodyResult);
 
-//     // Write the final output to a file (just for testing)
-//     fs.writeFileSync("output.json", final);
-// })();
+    // Check if scriptResult is not null before passing it to fixIncompleteJSON stupid typescript
+    const fixedJSON = scriptResult ? fixIncompleteJSON(scriptResult) : "";
+    const final = fixedJSON;
+
+    // Write the final output to a file (just for testing)
+    fs.writeFileSync("output.json", final);
+})();

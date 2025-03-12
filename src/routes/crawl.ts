@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { getRawHTML, getRelevantHTMLJSDOM, getBestBuyScriptTagOnly, fixIncompleteJSON } from "../crawls/crawler";
 import { log } from "console";
 import { string } from "zod";
+import bestBuy_products from "../models/bestBuyData";
 
 
 
@@ -40,8 +41,16 @@ router.get("/BB", async (req: Request, res: Response) => {
         // Add the URL link into the JSON object
         finalData.url = url;
 
+        // Reformat JSON data so that price is an priceList[] => (price, date) for later pulling for charting
+
+        const productData = finalData.product
+
+
+        log('Final Mongo push: ', productData)
+        await bestBuy_products.create(finalData);
         res.json(finalData);
-        // Then push the data to the database
+
+
         
     } catch (error) {
         console.error('Error fetching data:', error);
