@@ -13,7 +13,7 @@ const registerWithEmailAndPassword = async (req: Request, res: Response) => {
 
   //if invalid data, then send 401
   if (user.error) {
-    res.status(401).json({ error: user.error.errors });
+    res.status(401).json({ error: user.error.message });
     return;
   }
 
@@ -47,6 +47,27 @@ const registerWithEmailAndPassword = async (req: Request, res: Response) => {
           additionalInfo: { token: { value: token } },
         });
 
+        const dataToBeSent = {
+          username: createdUser.username,
+          fullName: createdUser.fullName,
+          email: createdUser.email,
+          //watch out here, isVerified and role cannot be undefined as per my understanding of the code i have written but still i dont want ts to trust me:)
+          isVerified: createdUser.additionalInfo?.isVerified || false,
+          role: createdUser.additionalInfo?.role || "user",
+        };
+
+        //give session to the user
+        req.session.user = dataToBeSent;
+
+        //and send 201 with userdata
+        res.status(201).json({
+          username: createdUser.username,
+          fullName: createdUser.fullName,
+          email: createdUser.email,
+          isVerified: createdUser.additionalInfo?.isVerified || false,
+          role: createdUser.additionalInfo?.role,
+        });
+
         //send the email to verify their account
         try {
           const emailSent = sendEmail(
@@ -58,16 +79,6 @@ const registerWithEmailAndPassword = async (req: Request, res: Response) => {
         } catch (e) {
           //console.log("couldnt send the email");
         }
-
-        //#todo: pass session id here
-
-        //and send 201 with userdata
-        res.status(201).json({
-          username: createdUser.username,
-          fullName: createdUser.fullName,
-          email: createdUser.email,
-          isVerified: createdUser.additionalInfo?.isVerified || false,
-        });
       } catch (e) {
         //if couldn't create in the database, send 500
         console.log(e);

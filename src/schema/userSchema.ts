@@ -35,6 +35,14 @@ const userSchema = new Schema({
   },
   */
   additionalInfo: {
+    image: {
+      type: String,
+      default: null,
+    },
+    googleId: {
+      type: String,
+      default: null,
+    },
     accountCreatedDate: {
       type: Date,
       default: Date.now(),
@@ -42,6 +50,12 @@ const userSchema = new Schema({
     isVerified: {
       type: Boolean,
       default: false,
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+      required: true,
     },
     token: {
       value: {

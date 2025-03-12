@@ -14,7 +14,7 @@ export default function authorizationChecker(
   requiredRole: "user" | "admin" = "user",
 ) {
   return (req: Request, res: Response, next: NextFunction) => {
-    const userRole = req.user?.role;
+    const userRole = req.session.user && req.session.user.role;
 
     if (!userRole || userRole !== requiredRole) {
       return res.status(403).json({ message: "access denied" });

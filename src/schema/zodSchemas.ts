@@ -16,10 +16,10 @@ export const registerSchema = z.object({
   password: z
     .string()
     .min(8, "Password should be at least 8 characters")
-    .regex(strongPassword, {
-      message:
-        "Password must include at least one uppercase letter, one number, and one special character.",
-    }),
+    .regex(
+      strongPassword,
+      "Password must include at least one uppercase letter, one number, and one special character.",
+    ),
 });
 
 /**

@@ -10,17 +10,20 @@ const databaseUrl = process.env.DATABASE_URL;
 const oauthClientId = process.env.GOOGLE_OAUTHCLIENT;
 const oauthClientSecret = process.env.GOOGLE_OAUTHSECRET;
 const frontendUrl = process.env.FRONTEND_URL;
+const backendUrl = process.env.FRONTEND_URL;
 const emailThatSendsOtp = process.env.EMAIL_ADDRESS;
 const emailPassword = process.env.EMAIL_PASSWORD;
 //we rarely define port in .env file or environment variable as it is managed by hosting provider most of the time
 const port = process.env.PORT as number | undefined;
+const sessionSecret = process.env.SESSION_SECRET_TOKEN;
 
 //if compulsory envs are missing
 if (
   !oauthClientId ||
   !oauthClientSecret ||
   !emailThatSendsOtp ||
-  !emailPassword
+  !emailPassword ||
+  !sessionSecret
 ) {
   throw new Error(
     "please check for compulsory envs in your environment variable, check envsample for required envs",
@@ -49,6 +52,9 @@ type Config = {
   emailThatSendsOtp: string;
   emailPassword: string;
   port: number;
+  sessionSecret: string;
+  environment: "dev" | "prod";
+  backendUrl: string;
 };
 
 const constConfig = {
@@ -56,18 +62,22 @@ const constConfig = {
   oauthClientSecret,
   emailThatSendsOtp,
   emailPassword,
+  sessionSecret,
+  environment,
 };
 
 const prodConfig: Config = {
   frontendUrl: frontendUrl!,
   databaseUrl: databaseUrl!,
   port: port!,
+  backendUrl: backendUrl!,
   ...constConfig,
 };
 
 const devConfig: Config = {
-  frontendUrl: "http://localhost:5173/",
+  frontendUrl: "http://localhost:5173",
   databaseUrl: "mongodb://localhost:27017/savr",
+  backendUrl: "http://localhost:3000",
   port: port || 3000,
   ...constConfig,
 };
