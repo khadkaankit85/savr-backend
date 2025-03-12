@@ -11,6 +11,7 @@ import productModel from "./schema/productSchema";
 import productRoute from "./routes/products";
 import scrapeRoute from "./routes/scrape";
 import userRoute from "./routes/user";
+import crawlRoute from "./routes/crawl";
 
 import { connectToDatabase } from "./utils/mongooseConnect";
 import { appConfigs } from "./configs/appconfigs";
@@ -72,10 +73,12 @@ app.use("/api", async (req: Request, res: Response, next: NextFunction) => {
     }
   }
 
+  // console.log(await productModel.find({}));
   next();
 });
 app.use("/api/scrape", scrapeRoute);
 app.use("/api/user", userRoute);
+app.use("/api/crawl", crawlRoute);
 
 app.get("/", (_req, res) => {
   res.send("hello world");
