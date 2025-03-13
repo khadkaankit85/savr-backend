@@ -3,6 +3,7 @@ declare module "express-session" {
     user: {
       username: string;
       fullName: string;
+      id: string;
       email: string;
       isVerified: boolean;
       role: "user" | "admin";

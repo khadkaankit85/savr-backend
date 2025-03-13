@@ -23,6 +23,7 @@ passport.use(
             email: existingUser.email,
             isVerified: existingUser.additionalInfo?.isVerified || true,
             role: existingUser.additionalInfo?.role || "user",
+            id: existingUser._id.toString(),
           };
           return done(null, dataToBeSent);
         }
@@ -71,6 +72,7 @@ passport.use(
           email: newUser.email,
           isVerified: newUser.additionalInfo?.isVerified || true,
           role: newUser.additionalInfo?.role || "user",
+          id: newUser._id.toString(),
         };
 
         done(null, dataToBeSent);

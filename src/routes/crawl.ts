@@ -25,11 +25,18 @@ const router = express.Router();
 
 router.get("/BB", async (req: Request, res: Response): Promise<void> => {
     console.log(`Crawling URL request: ${req.query.url}`);
-    
-    const url = req.query.url as string
-    const userId = req.query.userId as string;
 
-    if (!url){
+    const url = req.query.url as string
+    // TODO go back to this to get session ID
+
+    const userSession = req.session.user?.id
+    if (!userSession) {
+        res.status(401).json("user unauth") // unauth
+        return
+    }
+
+
+    if (!url) {
         res.status(400).json({ message: "URL is required" });
         return;
     }
@@ -63,7 +70,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
 
 
         // Find the user and add the product reference
-        const user = await User.findById(userId);
+        const user = await User.findById(userSession);
         if (user) {
             user.bestBuyProducts.push(newProduct._id);
             await user.save();
@@ -71,11 +78,9 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
             res.status(404).json({ message: "User not found" });
             return;
         }
-        
+
         res.json(finalData);
 
-
-        
     } catch (error) {
         console.error('Error fetching data:', error);
         res.status(500).json({ message: "Error fetching data" });

@@ -1,7 +1,7 @@
 import axios from "axios"
 import random_user_agent from "../scrapes/agents";
 import { log } from "console";
-import fs from "fs"
+import fs, { write } from "fs"
 import cheerio from "cheerio";
 import { JSDOM } from "jsdom"
 import puppeteer from "puppeteer";
@@ -68,12 +68,16 @@ export function getRelevantHTMLJSDOM(html: string): string {
 
         const dom = new JSDOM(html);
         const body = dom.window.document.body;
+
         return body ? body.innerHTML : "";
     } catch (error) {
         console.error("Error JSDOM: ", error);
         return "";
     }
 }
+
+// open AI API
+
 
 /**
  * Only for best buy to specifically target the product object within window.__INITIAL_STATE__
@@ -200,6 +204,8 @@ const url_test = "https://www.bestbuy.ca/en-ca/product/asus-rog-ally-7-1080p-tou
 (async () => {
     const html = await getRawHTML(url_test);
     const bodyResult = getRelevantHTMLJSDOM(html);
+
+    fs.writeFileSync("tokens.txt", bodyResult)
     const scriptResult = getBestBuyScriptTagOnly(bodyResult);
 
     // Check if scriptResult is not null before passing it to fixIncompleteJSON stupid typescript
