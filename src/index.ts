@@ -58,6 +58,9 @@ app.use(
     credentials: true,
   }),
 );
+
+console.log("CORS allowed origin:", appConfigs.frontendUrl);
+
 app.use(express.json());
 
 //for docs

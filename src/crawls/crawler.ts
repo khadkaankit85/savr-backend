@@ -200,18 +200,18 @@ export async function priceUsingRegex(html: string): Promise<void> {
 
 // TEST WITHOUT PUPPET -> SAME AS WITH PUPPET RESULTS BUT FASTER
 
-const url_test = "https://www.bestbuy.ca/en-ca/product/asus-rog-ally-7-1080p-touch-gaming-console-amd-z1-extreme-radeon-navi3-16gb-ram-512gb-ssd-windows-11-xbox-gamepass/17083904";
-(async () => {
-    const html = await getRawHTML(url_test);
-    const bodyResult = getRelevantHTMLJSDOM(html);
+// const url_test = "https://www.bestbuy.ca/en-ca/product/asus-rog-ally-7-1080p-touch-gaming-console-amd-z1-extreme-radeon-navi3-16gb-ram-512gb-ssd-windows-11-xbox-gamepass/17083904";
+// (async () => {
+//     const html = await getRawHTML(url_test);
+//     const bodyResult = getRelevantHTMLJSDOM(html);
 
-    fs.writeFileSync("tokens.txt", bodyResult)
-    const scriptResult = getBestBuyScriptTagOnly(bodyResult);
+//     fs.writeFileSync("tokens.txt", bodyResult)
+//     const scriptResult = getBestBuyScriptTagOnly(bodyResult);
 
-    // Check if scriptResult is not null before passing it to fixIncompleteJSON stupid typescript
-    const fixedJSON = scriptResult ? fixIncompleteJSON(scriptResult) : "";
-    const final = fixedJSON;
+//     // Check if scriptResult is not null before passing it to fixIncompleteJSON stupid typescript
+//     const fixedJSON = scriptResult ? fixIncompleteJSON(scriptResult) : "";
+//     const final = fixedJSON;
 
-    // Write the final output to a file (just for testing)
-    fs.writeFileSync("output.json", final);
-})();
+//     // Write the final output to a file (just for testing)
+//     fs.writeFileSync("output.json", final);
+// })();

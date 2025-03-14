@@ -8,6 +8,7 @@ import passport from "passport";
 import "./../configs/passport.ts";
 import { appConfigs } from "../configs/appconfigs";
 import { SessionUser } from "../types/others";
+import { getSavedProducts } from "../controllers/getSavedProductsController";
 
 const router = express.Router();
 
@@ -32,6 +33,12 @@ router.get(
     res.redirect(appConfigs.frontendUrl);
   },
 );
+
+
+// For products
+
+router.get("/getSavedProducts", getSavedProducts);
+
 
 //to be implemented by: /accountverification?email=${temproaryUsername}&token=${token} in frontend
 router.put("/verify/ep", emailVerificaitonController);
