@@ -71,7 +71,7 @@ const prodConfig: Config = {
   databaseUrl: databaseUrl!,
   port: port!,
   backendUrl: backendUrl!,
-  ...constConfig,
+  ...constConfig
 };
 
 const devConfig: Config = {
