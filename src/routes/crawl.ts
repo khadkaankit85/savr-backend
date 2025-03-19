@@ -63,7 +63,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
 
 
 
-        log('Final Mongo push: ', productData)
+        // log('Final Mongo push: ', productData)
 
         // Insert data into MongoDB
         const newProduct = await bestBuy_products.create(productData);
