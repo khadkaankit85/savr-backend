@@ -9,6 +9,7 @@ import "./../configs/passport.ts";
 import { appConfigs } from "../configs/appconfigs";
 import { SessionUser } from "../types/others";
 import { getSavedProducts } from "../controllers/getSavedProductsController";
+import { deleteTrackedProduct } from "../controllers/deleteTrackedProductController";
 
 const router = express.Router();
 
@@ -40,6 +41,8 @@ router.get(
 router.get("/getSavedProducts", getSavedProducts);
 
 // TODO Add route for scheduled crawl of user saved products to update prices and update price array for charting.
+
+router.delete("/deleteTrackedProduct", deleteTrackedProduct);
 
 //to be implemented by: /accountverification?email=${temproaryUsername}&token=${token} in frontend
 router.put("/verify/ep", emailVerificaitonController);

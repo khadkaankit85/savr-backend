@@ -77,6 +77,10 @@ export function getRelevantHTMLJSDOM(html: string): string {
 }
 
 // open AI API
+// TODO Add ai parser
+
+
+
 
 
 /**
