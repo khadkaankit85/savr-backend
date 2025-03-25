@@ -38,7 +38,6 @@ router.get("/BB", async (req: Request, res: Response) => {
       : "";
 
     const finalData: JSON = JSON.parse(fixedJSON);
-
     res.json(finalData);
   } catch (error) {
     console.error("Error fetching data:", error);

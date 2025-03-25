@@ -36,9 +36,7 @@ interface CadTireResponse {
   products: CadTireProduct[];
 }
 
-export async function scrapeBestBuy(
-  keyword: string,
-): Promise<
+export async function scrapeBestBuy(keyword: string): Promise<
   {
     title: string;
     price: number;
@@ -92,7 +90,7 @@ interface GiantTigerResponse {
   }[];
 }
 
-interface SimonsProductResponse{
+interface SimonsProductResponse {
   results: {
     hits: SimonsProduct[];
   }[];
@@ -105,21 +103,24 @@ interface SimonsProduct {
   image: string;
 }
 
-export async function scrapeSimons(keyword: string,
-): Promise<{ title?: string; brand_name?: string; price: number;image: string;}[]> {
+export async function scrapeSimons(
+  keyword: string,
+): Promise<
+  { title?: string; brand_name?: string; price: number; image: string }[]
+> {
   const searchString = keyword;
-  const algoliaAPIKey = "cafaab73d1b1e8b2721d108fc92ddc99"
-  const algoliaID = "7BMC2DATKE"
+  const algoliaAPIKey = "cafaab73d1b1e8b2721d108fc92ddc99";
+  const algoliaID = "7BMC2DATKE";
 
-  const URL = `https://7bmc2datke-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(4.17.0)%3B%20Browser%20(lite)%3B%20instantsearch.js%20(4.55.0)%3B%20Vue%20(2.7.14)%3B%20Vue%20InstantSearch%20(4.9.0)%3B%20JS%20Helper%20(3.12.0)&x-algolia-api-key=${algoliaAPIKey}&x-algolia-application-id=${algoliaID}`
-  const BASE_URL_IMG = "https://imagescdn.simons.ca/"
+  const URL = `https://7bmc2datke-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(4.17.0)%3B%20Browser%20(lite)%3B%20instantsearch.js%20(4.55.0)%3B%20Vue%20(2.7.14)%3B%20Vue%20InstantSearch%20(4.9.0)%3B%20JS%20Helper%20(3.12.0)&x-algolia-api-key=${algoliaAPIKey}&x-algolia-application-id=${algoliaID}`;
+  const BASE_URL_IMG = "https://imagescdn.simons.ca/";
 
   const headers = {
     "Content-Type": "application/json",
     "User-Agent": random_user_agent(),
     Accept: "*/*",
     Connection: "keep-alive",
-  }
+  };
 
   const payload = {
     requests: [
@@ -130,10 +131,10 @@ export async function scrapeSimons(keyword: string,
         analytics: false,
         clickAnalytics: false,
         page: 0,
-        params: `query=${encodeURIComponent(searchString)}&hitsPerPage=100&facets=["product_type"]&tagFilters=`
-      }
-    ]
-  }
+        params: `query=${encodeURIComponent(searchString)}&hitsPerPage=100&facets=["product_type"]&tagFilters=`,
+      },
+    ],
+  };
 
   try {
     const response = await axios.post<SimonsProductResponse>(URL, payload, {
@@ -143,13 +144,11 @@ export async function scrapeSimons(keyword: string,
     // console.log(data);
 
     // Parse and transform the product data
-    const parsedData = data.results[0].hits.map(
-      (product: SimonsProduct) => ({
-        title: product.title || product.brand_name,
-        price: product.price,
-        image: `${BASE_URL_IMG}${product.image}`
-      }),
-    );
+    const parsedData = data.results[0].hits.map((product: SimonsProduct) => ({
+      title: product.title || product.brand_name,
+      price: product.price,
+      image: `${BASE_URL_IMG}${product.image}`,
+    }));
 
     //  console.log(parsedData);
 
@@ -158,7 +157,6 @@ export async function scrapeSimons(keyword: string,
     console.error("Error fetching data:", error);
     throw new Error("Failed to scrape data");
   }
-
 }
 
 export async function scrapeGiantTiger(
@@ -260,7 +258,6 @@ export async function scrapeCadTire(keyword: string) {
   }
 }
 
-
 // NOT WORKING NOT SURE WHY IT'S THE SAME ARCHITECTURE AS CADTIRE
 export async function scrapeSportCheck(keyword: string) {
   const searchString = keyword;
@@ -270,13 +267,13 @@ export async function scrapeSportCheck(keyword: string) {
   const URL: string = `https://apim.sportchek.ca/v1/search/v2/search?q=${searchString}&store=${storeCode}`;
 
   const headers = {
-    "authority": "apim.sportchek.ca",
+    authority: "apim.sportchek.ca",
     "Content-Type": "application/json",
     "User-Agent": random_user_agent(),
-    "Accept": "*/*",
-    "Connection": "keep-alive",
-    "Referer": "https://www.sportchek.ca/",
-    "Dnt": "1",
+    Accept: "*/*",
+    Connection: "keep-alive",
+    Referer: "https://www.sportchek.ca/",
+    Dnt: "1",
     "ocp-apim-subscription-key": `${sportCheckSubKey}`,
   };
 
@@ -285,7 +282,6 @@ export async function scrapeSportCheck(keyword: string) {
     const data = response.data;
 
     // console.log(data);
-
 
     // log(data.products)
     if (!data.products || data.products.length === 0) {
@@ -299,7 +295,7 @@ export async function scrapeSportCheck(keyword: string) {
         image: product.images[0].url,
       }));
 
-      log("this is the parsed data")
+      log("this is the parsed data");
       // console.log(parsedData);
       return parsedData;
     }
@@ -308,7 +304,6 @@ export async function scrapeSportCheck(keyword: string) {
     throw new Error(`Failed to scrape data`);
   }
 }
-
 
 // Call the function to test it
 // scrapeSimons("shirt")
