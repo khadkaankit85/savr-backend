@@ -36,11 +36,11 @@ app.use(
     saveUninitialized: false,
     resave: false,
     cookie: {
-      maxAge: 14 * 24 * 60 * 60, //14 days for now
+      maxAge: 14 * 24 * 60 * 60 * 1000, //14 days for now
       secure: appConfigs.environment === "prod",
       httpOnly: true,
     },
-  }),
+  })
 );
 
 //trust the first proxy in production, different scenario when not using nginx or other reverse proxy server
@@ -56,7 +56,7 @@ app.use(
     origin: appConfigs.frontendUrl,
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
-  }),
+  })
 );
 
 console.log("CORS allowed origin:", appConfigs.frontendUrl);
