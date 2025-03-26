@@ -37,8 +37,14 @@ const loginWithEmailAndPassword = async (req: Request, res: Response) => {
       role: existingUser.additionalInfo?.role || "user",
     };
 
-    req.session.user = dataToBeSent;
+    if (!req.session.passport) {
+      req.session.passport = {}; // Initialize passport object
+    }
 
+    req.session.passport.user = {
+      ...dataToBeSent,
+      _id: existingUser._id.toString(),
+    };
     res.status(200).json(dataToBeSent);
   } catch (error) {
     console.error("Login error:", error);

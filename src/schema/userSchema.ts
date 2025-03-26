@@ -21,6 +21,28 @@ const userSchema = new Schema({
     unique: true,
     lowercase: true,
   },
+  //array of the products tracked by an user
+  trackedProducts: [
+    {
+      //this is the id of the product given from their store:)
+      storeProductId: {
+        type: Schema.Types.String,
+        ref: "Product",
+        required: true,
+        unique: true
+      },
+      //when to send the alert
+      alertPrice: {
+        type: Number,
+        required: true,
+      },
+      //when did the user started tracking the product
+      trackedDate: {
+        type: Date,
+        required: true,
+      },
+    },
+  ],
   /* this is replaced by link sent to email
   otp: {
     lastOtp: {
@@ -46,6 +68,7 @@ const userSchema = new Schema({
       type: Date,
       default: Date.now(),
     },
+    //TODO: if the user is not verified then don't let them login :) until they are verified
     isVerified: {
       type: Boolean,
       default: false,
@@ -56,6 +79,7 @@ const userSchema = new Schema({
       default: "user",
       required: true,
     },
+    //this token is sent via email when a new user is created and used to verify the user,expires soon,
     token: {
       value: {
         type: String,
@@ -66,6 +90,7 @@ const userSchema = new Schema({
         default: new Date("2025-02-20T00:00:00Z"),
         required: true,
       },
+      //the number of token comparison request by user is counted to prevent brute force
       requestCount: {
         type: Number,
         default: 0,

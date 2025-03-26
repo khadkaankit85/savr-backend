@@ -24,7 +24,7 @@ passport.use(
             isVerified: existingUser.additionalInfo?.isVerified || true,
             role: existingUser.additionalInfo?.role || "user",
           };
-          return done(null, dataToBeSent);
+          return done(null, { ...dataToBeSent, _id: existingUser._id });
         }
 
         // If no existing user, create a new user
@@ -73,7 +73,7 @@ passport.use(
           role: newUser.additionalInfo?.role || "user",
         };
 
-        done(null, dataToBeSent);
+        done(null, { ...dataToBeSent, _id: newUser._id });
       } catch (error) {
         console.error("Error during Google OAuth:", error);
         return done(error, false);
