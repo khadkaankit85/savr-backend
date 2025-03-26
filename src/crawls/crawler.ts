@@ -12,9 +12,6 @@ const defaultHeaders = {
     Accept: "application/json",
 };
 
-
-
-
 /**
  * Gets raw html output without loading a browser
  * @returns string
