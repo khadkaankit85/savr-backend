@@ -20,6 +20,18 @@ import passport from "passport";
 
 dotenv.config();
 const app = express();
+
+// Enable CORS
+app.use(
+  cors({
+    origin: [appConfigs.frontendUrl, "https://savr.one", "https://savr.one/"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
+
+console.log("CORS allowed origin:", appConfigs.frontendUrl);
+
 const swaggerDocument = YAML.load("./swagger.yaml");
 
 connectToDatabase();
@@ -49,17 +61,6 @@ if (appConfigs.environment === "prod") {
 }
 app.use(passport.initialize());
 app.use(passport.session());
-
-// Enable CORS
-app.use(
-  cors({
-    origin: [appConfigs.frontendUrl, "https://savr.one", "https://savr.one/"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
-
-console.log("CORS allowed origin:", appConfigs.frontendUrl);
 
 app.use(express.json());
 
