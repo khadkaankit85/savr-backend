@@ -11,19 +11,6 @@ import bestBuy_products from "../models/bestBuyData";
 import User from "../schema/userSchema";
 import productSchema from "../schema/productSchema";
 
-// (async () => {
-//     const html = await getRawHTML();
-//     const bodyResult = getRelevantHTMLJSDOM(html);
-//     const scriptResult = getBestBuyScriptTagOnly(bodyResult);
-
-//     // Check if scriptResult is not null before passing it to fixIncompleteJSON stupid typescript
-//     const fixedJSON = scriptResult ? fixIncompleteJSON(scriptResult) : "";
-//     const final = fixedJSON;
-
-//     // Write the final output to a file (just for testing)
-//     fs.writeFileSync("output.json", final);
-// })();
-
 const router = express.Router();
 
 router.get("/BB", async (req: Request, res: Response): Promise<void> => {
@@ -82,18 +69,41 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
       }
     } else {
       //   TODO check if same day then don't update, else update
-      await bestBuy_products.updateOne(
-        { sku: existingProduct.sku },
-        {
-          $push: {
-            priceDateHistory: {
-              Number: finalData.product.priceWithoutEhf,
-              Date: new Date(),
-            },
-          },
-        }
-      );
 
+      // Check if the most recent entry in priceDateHistory is from the same day
+      const lastPriceEntry =
+        existingProduct.priceDateHistory[
+          existingProduct.priceDateHistory.length - 1
+        ];
+      const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+      const lastEntryDate = lastPriceEntry?.Date
+        ? new Date(lastPriceEntry.Date).toISOString().split("T")[0]
+        : null;
+
+      if (
+        lastEntryDate !== today ||
+        lastPriceEntry?.Number !== finalData.product.priceWithoutEhf
+      ) {
+        // Only add a new entry if the date is different or the price has changed
+        await bestBuy_products.updateOne(
+          { sku: existingProduct.sku },
+          {
+            $push: {
+              priceDateHistory: {
+                Number: finalData.product.priceWithoutEhf,
+                Date: new Date(),
+              },
+            },
+            $set: {
+              priceWithoutEhf: finalData.product.priceWithoutEhf, // Update the current price
+              regularPrice: finalData.product.regularPrice, // Update regular price if needed
+              isOnSale: finalData.product.isOnSale,
+            },
+          }
+        );
+      } else {
+        console.log("No update needed: Price and date are the same.");
+      }
       //   console.log("this is the result", updateResult);
 
       const user = await User.findById(userSession);
