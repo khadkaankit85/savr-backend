@@ -24,7 +24,7 @@ const app = express();
 // Enable CORS
 app.use(
   cors({
-    origin: [appConfigs.frontendUrl, "https://savr.one", "https://savr.one/"],
+    origin: [appConfigs.frontendUrl, "https://www.savr.one"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
