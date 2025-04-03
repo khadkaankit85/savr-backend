@@ -5,7 +5,7 @@ import loginWithEmailAndPassword from "../controllers/loginWithEmailPw";
 import { handleLogout } from "../controllers/logoutController";
 import { sessionChecker } from "../controllers/checkSession";
 import passport from "passport";
-import "./../configs/passport.ts";
+import "../configs/passport";
 import { appConfigs } from "../configs/appconfigs";
 import { SessionUser } from "../types/others";
 import { getSavedProducts } from "../controllers/getSavedProductsController";
@@ -20,7 +20,7 @@ router.get(
   "/auth/google",
   passport.authenticate("google", {
     scope: ["profile", "email"],
-  }),
+  })
 );
 
 router.get(
@@ -32,9 +32,8 @@ router.get(
     req.session.user = req.user as SessionUser;
 
     res.redirect(appConfigs.frontendUrl);
-  },
+  }
 );
-
 
 // For products
 
