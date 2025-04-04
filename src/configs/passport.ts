@@ -2,8 +2,8 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { appConfigs } from "./appconfigs";
 import User from "../schema/userSchema";
-import crypto from "crypto";
-import { SessionUser } from "../types/others";
+import crypto from "node:crypto";
+import type { SessionUser } from "../types/others";
 
 passport.use(
   new GoogleStrategy(
