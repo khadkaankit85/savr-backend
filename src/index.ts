@@ -56,12 +56,14 @@ app.use(
   })
 );
 
+app.use(passport.initialize());
+app.use(passport.session());
+
+
 //trust the first proxy in production, different scenario when not using nginx or other reverse proxy server
 if (appConfigs.environment === "prod") {
   app.set("trust proxy", 1);
 }
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.use(express.json());
 

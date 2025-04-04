@@ -11,6 +11,7 @@ passport.use(
       clientID: appConfigs.oauthClientId,
       clientSecret: appConfigs.oauthClientSecret,
       callbackURL: `${appConfigs.backendUrl}/api/user/authentication/withgoogle/callback`,
+      scope: ["email", "profile"],
     },
     async (_accessToken, _refreshToken, profile, done) => {
       try {
