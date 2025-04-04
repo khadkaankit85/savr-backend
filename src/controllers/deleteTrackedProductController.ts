@@ -15,8 +15,12 @@ export const deleteTrackedProduct = async (
 ) => {
   const { userId, productId } = req.body;
 
+  console.log(`req.body userId: ${userId}`);
+
   try {
-    const user = await User.findById(new mongoose.Types.ObjectId(userId));
+    const user = await User.findById(userId);
+    console.log(`user - ${user}`);
+
     if (!user) {
       res.status(403).json({ message: "User not found" });
       return;
