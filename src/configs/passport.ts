@@ -11,6 +11,7 @@ passport.use(
       clientID: appConfigs.oauthClientId,
       clientSecret: appConfigs.oauthClientSecret,
       callbackURL: `${appConfigs.backendUrl}/api/user/authentication/withgoogle/callback`,
+      scope: ["email", "profile"],
     },
     async (_accessToken, _refreshToken, profile, done) => {
       try {
@@ -80,8 +81,8 @@ passport.use(
         console.error("Error during Google OAuth:", error);
         return done(error, false);
       }
-    },
-  ),
+    }
+  )
 );
 
 passport.serializeUser((user, done) => {
