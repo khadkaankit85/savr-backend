@@ -24,7 +24,7 @@ const app = express();
 // Enable CORS
 app.use(
   cors({
-    origin: [appConfigs.frontendUrl, "https://www.savr.one"],
+    origin: [appConfigs.frontendUrl, "https://savr.one"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
@@ -51,7 +51,7 @@ app.use(
       maxAge: 14 * 24 * 60 * 60 * 1000, //14 days for now
       secure: appConfigs.environment === "prod",
       httpOnly: true,
-      sameSite: appConfigs.environment === "prod" ? "none" : "lax",
+      sameSite: "none",
     },
   })
 );
