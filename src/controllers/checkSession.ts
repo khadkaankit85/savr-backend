@@ -4,6 +4,7 @@ import { Request, Response } from "express";
  * user data exists in req.session.user, regardless of the method of authentication
  */
 export const sessionChecker = (req: Request, res: Response) => {
+  console.log(req.cookies)
   console.log("Session data: ", req.session);
   if (req.session.user) {
     res.status(200).json({ user: req.session.user });
