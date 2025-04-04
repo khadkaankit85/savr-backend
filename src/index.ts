@@ -17,9 +17,13 @@ import { connectToDatabase } from "./utils/mongooseConnect";
 import { appConfigs } from "./configs/appconfigs";
 import mongoose from "mongoose";
 import passport from "passport";
+import path from "node:path";
 
 dotenv.config();
 const app = express();
+
+//well known file for first classs cookie support
+app.use('/.well-known', express.static(path.join(__dirname, 'public/.well-known')));
 
 // Enable CORS
 app.use(
@@ -66,6 +70,7 @@ if (appConfigs.environment === "prod") {
 }
 
 app.use(express.json());
+//app.use(express.static(path.join(__dirname, "public")))
 
 //for docs
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));

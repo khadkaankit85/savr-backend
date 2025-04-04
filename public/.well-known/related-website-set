@@ -1,0 +1,10 @@
+{
+  "owner": "savr.one",
+  "owner_service_type": "first_party",
+  "members": [
+    { "site": "savr.one" },
+    { "site": "api.savr.one" },
+    { "site": "savr-70d4ce763f22.herokuapp.com" },
+    { "site": "savr-app.vercel.app" }
+  ]
+}
