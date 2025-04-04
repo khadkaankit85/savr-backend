@@ -81,8 +81,8 @@ passport.use(
         console.error("Error during Google OAuth:", error);
         return done(error, false);
       }
-    },
-  ),
+    }
+  )
 );
 
 passport.serializeUser((user, done) => {
