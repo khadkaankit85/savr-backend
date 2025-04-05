@@ -59,6 +59,7 @@ const emailVerificaitonController = async (req: Request, res: Response) => {
         { new: true },
       );
       if (!updatedUser) return;
+
       req.session.user = {
         username: updatedUser.username,
         fullName: updatedUser!.fullName,
@@ -68,10 +69,7 @@ const emailVerificaitonController = async (req: Request, res: Response) => {
         role: updatedUser.additionalInfo!.role,
       };
 
-      req.session.regenerate((_err) => {
-        console.log("error assigning new session from email verification")
-      })
-
+      req.session.save()
 
       // Return updated user info
       // we always have updatedUser here unless we have an exception so turnery operator might be replaceable by ! i guess:)
