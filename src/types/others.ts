@@ -7,5 +7,4 @@ export interface SessionUser {
   email: string;
   isVerified: boolean;
   role: "user" | "admin";
-  
 }

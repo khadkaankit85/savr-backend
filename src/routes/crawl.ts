@@ -99,7 +99,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
               regularPrice: finalData.product.regularPrice, // Update regular price if needed
               isOnSale: finalData.product.isOnSale,
             },
-          }
+          },
         );
       } else {
         console.log("No update needed: Price and date are the same.");

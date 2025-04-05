@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { emailVerificationSchema } from "../schema/zodSchemas";
 import User from "../schema/userSchema";
 import { isExpired } from "../utils/utils";
+import { request } from "node:http";
 
 const emailVerificaitonController = async (req: Request, res: Response) => {
   const data = emailVerificationSchema.safeParse(req.body);
@@ -23,8 +24,8 @@ const emailVerificaitonController = async (req: Request, res: Response) => {
       return;
     }
     if (user.additionalInfo?.isVerified) {
-      res.redirect('/')
-      return
+      res.redirect("/");
+      return;
     }
 
     const token = user.additionalInfo?.token?.value;
@@ -38,14 +39,14 @@ const emailVerificaitonController = async (req: Request, res: Response) => {
 
     // If the token is expired
     if (isExpired(createdAt, 24 * 60 * 60 * 1000)) {
-      console.log(createdAt)
+      console.log(createdAt);
       res.status(401).json({ error: "expired token" });
       return;
     }
 
     // If the token is not matching
     if (token !== data.data.token) {
-      console.log("expected is ", token, " and got ", data)
+      console.log("expected is ", token, " and got ", data);
       res.status(400).json({ error: "invalid token" });
       return;
     }
@@ -57,6 +58,15 @@ const emailVerificaitonController = async (req: Request, res: Response) => {
         { $set: { "additionalInfo.isVerified": true } },
         { new: true },
       );
+      if (!updatedUser) return;
+      req.session.user = {
+        username: updatedUser.username,
+        fullName: updatedUser!.fullName,
+        id: updatedUser.fullName,
+        email: updatedUser.email,
+        isVerified: updatedUser.additionalInfo!.isVerified,
+        role: updatedUser.additionalInfo!.role,
+      };
 
       // Return updated user info
       // we always have updatedUser here unless we have an exception so turnery operator might be replaceable by ! i guess:)

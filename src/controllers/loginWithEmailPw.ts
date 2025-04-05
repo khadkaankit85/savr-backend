@@ -21,7 +21,7 @@ const loginWithEmailAndPassword = async (req: Request, res: Response) => {
 
     const isPasswordValid = await bcrypt.compare(
       user.data.password,
-      existingUser.password
+      existingUser.password,
     );
 
     if (!isPasswordValid) {

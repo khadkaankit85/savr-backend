@@ -81,8 +81,8 @@ passport.use(
         console.error("Error during Google OAuth:", error);
         return done(error, false);
       }
-    }
-  )
+    },
+  ),
 );
 
 passport.serializeUser((user, done) => {
@@ -90,6 +90,6 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (user: SessionUser, done) => {
-  const userFromDb = await User.findById(user.id)
+  const userFromDb = await User.findById(user.id);
   done(null, userFromDb);
 });

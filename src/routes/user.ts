@@ -20,7 +20,7 @@ router.get(
   "/auth/google",
   passport.authenticate("google", {
     scope: ["profile", "email"],
-  })
+  }),
 );
 
 router.get(
@@ -31,9 +31,9 @@ router.get(
   (req: Request, res: Response) => {
     req.session.user = req.user as SessionUser;
     //@ts-ignore
-    delete req.session.passport
+    delete req.session.passport;
     res.redirect(appConfigs.frontendUrl);
-  }
+  },
 );
 
 // For products

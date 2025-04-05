@@ -11,7 +11,7 @@ interface DeleteTrackedProductRequest extends Request {
 
 export const deleteTrackedProduct = async (
   req: DeleteTrackedProductRequest,
-  res: Response
+  res: Response,
 ) => {
   const { userId, productId } = req.body;
 
@@ -27,7 +27,7 @@ export const deleteTrackedProduct = async (
     }
 
     user.bestBuyProducts = user.bestBuyProducts.filter(
-      (id: mongoose.Types.ObjectId) => id.toString() !== productId
+      (id: mongoose.Types.ObjectId) => id.toString() !== productId,
     );
 
     await user.save();

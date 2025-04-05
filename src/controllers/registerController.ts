@@ -74,7 +74,7 @@ const registerWithEmailAndPassword = async (req: Request, res: Response) => {
           const emailSent = sendEmail(
             user.data.email,
             "Savr Account Verification",
-            getAccountVerificationEmailText(url)
+            getAccountVerificationEmailText(url),
           );
           console.log("email sent to ", user.data.email, await emailSent);
         } catch (e) {

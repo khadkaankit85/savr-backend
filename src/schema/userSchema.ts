@@ -74,10 +74,12 @@ const userSchema = new Schema({
       },
     },
   },
-  bestBuyProducts:[{
-    type: Schema.Types.ObjectId,
-    ref: 'bestBuy_products'
-  }]
+  bestBuyProducts: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "bestBuy_products",
+    },
+  ],
 });
 userSchema.pre("save", async function (next) {
   const user = this;
