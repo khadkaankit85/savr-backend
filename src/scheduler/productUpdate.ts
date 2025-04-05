@@ -58,7 +58,12 @@ async function updateProducts() {
 
         try {
           const response = await axios.get(
-            `https://api.savr.one/api/crawl/BB?url=${productUrl}`
+            `https://api.savr.one/api/crawl/BB?url=${productUrl}`,
+            {
+              headers: {
+                Authorization: `Bearer ${process.env.SCRAPER_API_TOKEN}`,
+              },
+            }
           );
           console.log(`Product successfully updated!`);
         } catch (error) {

@@ -10,19 +10,26 @@ import { string } from "zod";
 import bestBuy_products from "../models/bestBuyData";
 import User from "../schema/userSchema";
 import productSchema from "../schema/productSchema";
+import dotenv from "dotenv";
 
 const router = express.Router();
 
 router.get("/BB", async (req: Request, res: Response): Promise<void> => {
   console.log(`Crawling URL request: ${req.query.url}`);
 
-  const url = req.query.url as string;
-  // TODO go back to this to get session ID
+  console.log("TOKEN HERE: ", process.env.SCRAPER_API_TOKEN);
 
+  const url = req.query.url as string;
+  const apiToken = req.headers["authorization"];
   const userSession = req.session.user?.id;
-  if (!userSession) {
-    res.status(401).json("user unauth"); // unauth
-    return;
+
+  if (apiToken === `Bearer ${process.env.SCRAPER_API_TOKEN}`) {
+    console.log("Authorized scraper requests");
+  } else {
+    if (!userSession) {
+      res.status(401).json("user unauth"); // unauth
+      return;
+    }
   }
 
   if (!url) {
