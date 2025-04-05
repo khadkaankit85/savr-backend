@@ -46,7 +46,7 @@ const productSchema = new Schema({
   longDescription: String,
   media: mediaSchema,
   url: { unique: true, required: true, type: String },
-  priceDateHistory: [{ Number, Date }], //TODO implement in the BB crawler
+  priceDateHistory: [{ Number, Date }],
 });
 
 const bestBuy_products = model("bestBuy_products", productSchema);

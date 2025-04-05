@@ -52,8 +52,6 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         },
       ];
 
-      // Reformat JSON data so that price is an priceList[] => (price, date) for later pulling for charting
-
       // This is for MONGO:
       let productData = finalData.product;
 
@@ -99,7 +97,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
               regularPrice: finalData.product.regularPrice, // Update regular price if needed
               isOnSale: finalData.product.isOnSale,
             },
-          },
+          }
         );
       } else {
         console.log("No update needed: Price and date are the same.");
