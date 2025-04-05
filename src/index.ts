@@ -56,10 +56,9 @@ app.use(
     resave: false,
     cookie: {
       maxAge: 14 * 24 * 60 * 60 * 1000, //14 days for now
-      secure: appConfigs.environment === "prod",
       httpOnly: true,
-      sameSite: "none",
-      domain: ".savr.one",
+      ...(appConfigs.environment === "prod" && { domain: ".savr.one", sameSite: "none", secure: true }),
+      ...(appConfigs.environment !== "prod" && { sameSite: "lax", secure: false })
     },
   }),
 );
