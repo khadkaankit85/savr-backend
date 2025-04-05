@@ -64,18 +64,22 @@ const emailVerificaitonController = async (req: Request, res: Response) => {
         fullName: updatedUser!.fullName,
         id: updatedUser.fullName,
         email: updatedUser.email,
-        isVerified: updatedUser.additionalInfo!.isVerified,
+        isVerified: true,
         role: updatedUser.additionalInfo!.role,
       };
 
+
       // Return updated user info
       // we always have updatedUser here unless we have an exception so turnery operator might be replaceable by ! i guess:)
+      /*
       res.status(201).json({
         username: updatedUser?.username,
         fullName: updatedUser?.fullName,
         email: updatedUser?.email,
         isVerified: updatedUser?.additionalInfo!.isVerified,
       });
+      */
+      res.redirect("/")
     } catch {
       res.status(500).json({ error: "please try again later" });
     }
