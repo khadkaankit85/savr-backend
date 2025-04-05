@@ -2,6 +2,7 @@ import { log } from "console";
 import bestBuy_products from "../models/bestBuyData";
 import mongoose, { mongo } from "mongoose";
 import axios from "axios";
+import dotenv from "dotenv";
 
 interface ProductToUpdate {
   url: string;
@@ -14,6 +15,8 @@ interface PulledProducts {
   priceDateHistory: { Number: number; Date: Date }[];
 }
 
+dotenv.config();
+
 const db_url =
   "mongodb+srv://mattazz:Burnout90210@testing.h0pbt.mongodb.net/?retryWrites=true&w=majority&appName=Testing";
 
@@ -23,7 +26,7 @@ async function updateProducts() {
     await mongoose.connect(db_url, { dbName: "savr" });
 
     if (mongoose.connection.readyState === 1) {
-      log("MongoDB connection is successful");
+      log("[priceUpdate worker] MongoDB connection is successful");
     } else {
       console.log("Connection is not successful.");
     }
@@ -34,7 +37,9 @@ async function updateProducts() {
       const product = productDetails[i];
 
       if (product.priceDateHistory.length === 0) {
-        log(`No price history available for ${product.url}`);
+        log(
+          `[priceUpdate worker] - No price history available for ${product.url}`
+        );
         continue;
       }
 
@@ -43,17 +48,24 @@ async function updateProducts() {
       const productUrl = product.url;
 
       if (!latestProductDetails.Date) {
-        log(`Missing date entry for the latest entry of ${product.url}`);
+        log(
+          `[priceUpdate worker] - Missing date entry for the latest entry of ${product.url}`
+        );
         continue;
       } else {
-        log(`Latest date for ${product.url}: `, latestProductDetails.Date);
+        log(
+          `[priceUpdate worker] - Latest date for ${product.url}: `,
+          latestProductDetails.Date
+        );
       }
 
       if (dateIsToday(latestProductDetails.Date)) {
-        console.log(`Product Date is today... skipping`);
+        console.log(`[priceUpdate worker] - Product Date is today... skipping`);
         continue;
       } else {
-        console.log(`Product date is not today...updating product:`);
+        console.log(
+          `[priceUpdate worker] - Product date is not today...updating product:`
+        );
         // this is where I scrape the product again, then push the date.
 
         try {
@@ -65,25 +77,31 @@ async function updateProducts() {
               },
             }
           );
-          console.log(`Product successfully updated!`);
+          console.log(`[priceUpdate worker] - Product successfully updated!`);
         } catch (error) {
-          console.error("Unable to update product date", error);
+          console.error(
+            "[priceUpdate worker] - Unable to update product date",
+            error
+          );
         }
       }
     }
   } catch (error) {
-    console.error("Error connecting to MongodB: ", error);
+    console.error(
+      "[priceUpdate worker] - Error connecting to MongodB: ",
+      error
+    );
   } finally {
     if (mongoose.connection.readyState !== 0) {
       await mongoose.disconnect();
-      log("MongoDB connection closed");
+      log("[priceUpdate worker] - MongoDB connection closed");
     }
   }
 }
 
 function dateIsToday(d1: Date): boolean {
   if (isNaN(new Date(d1).getTime())) {
-    console.error("Invalid date provided:", d1);
+    console.error("[priceUpdate worker] - Invalid date provided:", d1);
     return false;
   }
   const today = new Date();
@@ -95,4 +113,5 @@ function dateIsToday(d1: Date): boolean {
   return today.getTime() === productDate.getTime();
 }
 
+// log(process.env.SCRAPER_API_TOKEN);
 updateProducts();
