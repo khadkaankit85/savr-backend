@@ -34,7 +34,8 @@ const emailVerificaitonController = async (req: Request, res: Response) => {
 
     // If the token is expired
     if (isExpired(createdAt, 24 * 60 * 60 * 1000)) {
-      res.status(401).json({ error: "invalid token" });
+      console.log(createdAt)
+      res.status(401).json({ error: "expired token" });
       return;
     }
 
