@@ -22,6 +22,10 @@ const emailVerificaitonController = async (req: Request, res: Response) => {
       res.status(404).json({ error: "user doesn't exist" });
       return;
     }
+    if (user.additionalInfo?.isVerified) {
+      res.redirect('/')
+      return
+    }
 
     const token = user.additionalInfo?.token?.value;
     const createdAt = user.additionalInfo?.token?.createdAt;
@@ -60,7 +64,7 @@ const emailVerificaitonController = async (req: Request, res: Response) => {
         username: updatedUser?.username,
         fullName: updatedUser?.fullName,
         email: updatedUser?.email,
-        isVerified: updatedUser?.additionalInfo?.isVerified || false,
+        isVerified: updatedUser?.additionalInfo!.isVerified,
       });
     } catch {
       res.status(500).json({ error: "please try again later" });
