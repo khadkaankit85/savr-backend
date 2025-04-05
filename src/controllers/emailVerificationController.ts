@@ -40,6 +40,7 @@ const emailVerificaitonController = async (req: Request, res: Response) => {
 
     // If the token is not matching
     if (token !== data.data.token) {
+      console.log("expected is ", token, " and got ", data)
       res.status(400).json({ error: "invalid token" });
       return;
     }
