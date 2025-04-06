@@ -3,6 +3,7 @@ import bestBuy_products from "../models/bestBuyData";
 import mongoose, { mongo } from "mongoose";
 import axios from "axios";
 import dotenv from "dotenv";
+import { env } from "process";
 
 interface ProductToUpdate {
   url: string;
@@ -16,13 +17,14 @@ interface PulledProducts {
 }
 
 dotenv.config();
-
-const db_url =
-  "mongodb+srv://mattazz:Burnout90210@testing.h0pbt.mongodb.net/?retryWrites=true&w=majority&appName=Testing";
+const db_url = process.env.DATABASE_URL;
 
 async function updateProducts() {
   try {
     // DEBUG FOR TESTING ONLY
+    if (!db_url) {
+      throw new Error("DATABASE_URL not defined");
+    }
     await mongoose.connect(db_url, { dbName: "savr" });
 
     if (mongoose.connection.readyState === 1) {
@@ -70,7 +72,7 @@ async function updateProducts() {
 
         try {
           const response = await axios.get(
-            `https://api.savr.one/api/crawl/BB?url=${productUrl}`,
+            `https://savr.one/api/crawl/updater?url=${productUrl}`,
             {
               headers: {
                 Authorization: `Bearer ${process.env.SCRAPER_API_TOKEN}`,

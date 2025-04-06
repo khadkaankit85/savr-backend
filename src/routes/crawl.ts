@@ -148,4 +148,68 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+router.get("/updater", async (req: Request, res: Response): Promise<void> => {
+  const url = req.query.url as string;
+  console.log(url);
+
+  // Authorization check for the scraper
+  const apiToken = req.headers["authorization"];
+  if (apiToken !== `Bearer ${process.env.SCRAPER_API_TOKEN}`) {
+    res.status(401).json({ message: "Unauthorized scraper" });
+    return;
+  }
+
+  // Validate URL
+  if (!url) {
+    res.status(400).json({ message: "URL is required" });
+    return;
+  }
+
+  try {
+    // Fetch and process HTML
+    const html = await getRawHTML(url);
+    const bodyResult = getRelevantHTMLJSDOM(html);
+    const scriptResult = getBestBuyScriptTagOnly(bodyResult);
+    const fixedJSON: string = scriptResult
+      ? fixIncompleteJSON(scriptResult)
+      : "";
+    const finalData: { [key: string]: any } = JSON.parse(fixedJSON);
+
+    // Add the URL to the finalData object
+    finalData.product = finalData.product || {};
+    finalData.product.url = url;
+
+    const existingProduct = await bestBuy_products.findOne({
+      url: finalData.product.url,
+    });
+    if (!existingProduct) {
+      console.log("No existing product");
+      return;
+    } else {
+      console.log("Existing product found. Checking for updates...");
+    }
+
+    await bestBuy_products.updateOne(
+      { url: existingProduct.url },
+      {
+        $push: {
+          priceDateHistory: {
+            Number: finalData.product.priceWithoutEhf,
+            Date: new Date(),
+          },
+        },
+        $set: {
+          priceWithoutEhf: finalData.product.priceWithoutEhf,
+          regularPrice: finalData.product.regularPrice,
+          isOnSale: finalData.product.isOnSale,
+        },
+      }
+    );
+    res.status(200).json({ message: "Product processed successfully" });
+  } catch (error) {
+    console.log("Error fetching data:", error);
+    res.status(500).json({ message: "Error fetching data" });
+  }
+});
+
 export default router;
