@@ -17,7 +17,6 @@ const defaultHeaders = {
  * @returns string
  */
 export async function getRawHTML(URL: string): Promise<string> {
-  log("Trying...");
   try {
     const response = await axios.get(URL, {
       headers: defaultHeaders,
@@ -60,7 +59,7 @@ export async function getPuppetRawHTML(URL: string): Promise<string> {
  */
 export function getRelevantHTMLJSDOM(html: string): string {
   try {
-    console.log("JSDOM: Getting body tag only...");
+    // console.log("JSDOM: Getting body tag only...");
 
     const dom = new JSDOM(html);
     const body = dom.window.document.body;
@@ -117,7 +116,7 @@ export function getBestBuyScriptTagOnly(html: string): string | null {
 
           // Find the product object that contains "ehf"
           const productWithEHF = productMatches.find((match) =>
-            match[0].includes('"ehf"'),
+            match[0].includes('"ehf"')
           );
 
           // If found, return it

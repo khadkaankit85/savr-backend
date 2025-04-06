@@ -15,43 +15,53 @@ import dotenv from "dotenv";
 const router = express.Router();
 
 router.get("/BB", async (req: Request, res: Response): Promise<void> => {
-  console.log(`Crawling URL request: ${req.query.url}`);
-
-  console.log("TOKEN HERE: ", process.env.SCRAPER_API_TOKEN);
-
   const url = req.query.url as string;
+
   const apiToken = req.headers["authorization"];
   const userSession = req.session.user?.id;
-
-  if (apiToken === `Bearer ${process.env.SCRAPER_API_TOKEN}`) {
-    console.log("Authorized scraper requests");
-  } else {
+  // Authorization check
+  if (apiToken !== `Bearer ${process.env.SCRAPER_API_TOKEN}`) {
     if (!userSession) {
-      res.status(401).json("user unauth"); // unauth
+      res.status(401).json("Unauthorized user");
       return;
     }
   }
 
+  // Validate URL
   if (!url) {
     res.status(400).json({ message: "URL is required" });
     return;
   }
+
   try {
-    const html = await getRawHTML(url); // parses here
-    const bodyResult = getRelevantHTMLJSDOM(html); // gets raw HTML
-    const scriptResult = getBestBuyScriptTagOnly(bodyResult); // narrows down bestbuy
+    // Fetch and process HTML
+    const html = await getRawHTML(url);
+    const bodyResult = getRelevantHTMLJSDOM(html);
+    const scriptResult = getBestBuyScriptTagOnly(bodyResult);
     const fixedJSON: string = scriptResult
       ? fixIncompleteJSON(scriptResult)
-      : ""; // fixes json
+      : "";
     const finalData: { [key: string]: any } = JSON.parse(fixedJSON);
-    res.json(finalData);
 
-    let existingProduct = await bestBuy_products.findOne({
-      sku: finalData.product.sku,
+    // Add the URL to the finalData object
+    finalData.product = finalData.product || {};
+    finalData.product.url = url;
+
+    const existingProduct = await bestBuy_products.findOne({
+      url: finalData.product.url,
     });
-    if (!existingProduct) {
-      finalData.product.url = url;
+    const user = await User.findById(userSession);
 
+    if (!user) {
+      console.error("Error: User not found");
+      return;
+    }
+
+    if (!existingProduct) {
+      console.log("New product...saving to database");
+
+      // Add new product to the database
+      finalData.product.url = url;
       finalData.product.priceDateHistory = [
         {
           Number: finalData.product.priceWithEhf,
@@ -59,37 +69,56 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         },
       ];
 
-      // This is for MONGO:
-      let productData = finalData.product;
+      const newProduct = await bestBuy_products.create(finalData.product);
 
-      // Insert data into MongoDB
-      const newProduct = await bestBuy_products.create(productData);
-      const user = await User.findById(userSession);
-
-      if (user) {
-        user.bestBuyProducts.push(newProduct._id);
+      if (newProduct && newProduct._id) {
+        user.bestBuyProducts.push({
+          product: newProduct._id,
+          wantedPrice: 0,
+        });
         await user.save();
       } else {
+        console.log("Error: Failed to create new product");
         return;
       }
     } else {
-      //   TODO check if same day then don't update, else update
+      console.log(
+        "Existing product, adding to user but not saving to database."
+      );
 
-      // Check if the most recent entry in priceDateHistory is from the same day
+      // Add the existing product to the user's tracked products
+      if (
+        !user.bestBuyProducts.some(
+          (item) => item.product.toString() === existingProduct._id.toString()
+        )
+      ) {
+        user.bestBuyProducts.push({
+          product: existingProduct._id,
+          wantedPrice: 0,
+        });
+        await user.save();
+      } else {
+        console.log("Product already exists in the user's tracked list.");
+      }
+
+      // Update price history if needed
       const lastPriceEntry =
         existingProduct.priceDateHistory[
           existingProduct.priceDateHistory.length - 1
         ];
-      const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+      const today = new Date().toISOString().split("T")[0];
       const lastEntryDate = lastPriceEntry?.Date
         ? new Date(lastPriceEntry.Date).toISOString().split("T")[0]
         : null;
+
+      console.log("Check if price update needed...");
 
       if (
         lastEntryDate !== today ||
         lastPriceEntry?.Number !== finalData.product.priceWithoutEhf
       ) {
-        // Only add a new entry if the date is different or the price has changed
+        console.log("Existing product: updating price since unequal date");
+
         await bestBuy_products.updateOne(
           { sku: existingProduct.sku },
           {
@@ -100,8 +129,8 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
               },
             },
             $set: {
-              priceWithoutEhf: finalData.product.priceWithoutEhf, // Update the current price
-              regularPrice: finalData.product.regularPrice, // Update regular price if needed
+              priceWithoutEhf: finalData.product.priceWithoutEhf,
+              regularPrice: finalData.product.regularPrice,
               isOnSale: finalData.product.isOnSale,
             },
           }
@@ -109,20 +138,13 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
       } else {
         console.log("No update needed: Price and date are the same.");
       }
-      //   console.log("this is the result", updateResult);
 
-      const user = await User.findById(userSession);
-
-      if (user) {
-        user.bestBuyProducts.push(existingProduct._id);
-        await user.save();
-      } else {
-        return;
-      }
+      res.status(200).json({ product: existingProduct });
+      return;
     }
   } catch (error) {
-    console.error("Error fetching data:", error);
-    // res.status(500).json({ message: "Error fetching data" });
+    console.log("Error fetching data:", error);
+    res.status(500).json({ message: "Error fetching data" });
   }
 });
 

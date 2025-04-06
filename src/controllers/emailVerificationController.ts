@@ -39,7 +39,7 @@ const emailVerificaitonController = async (req: Request, res: Response) => {
 
     // If the token is expired
     if (isExpired(createdAt, 24 * 60 * 60 * 1000)) {
-      console.log(createdAt);
+      // console.log(createdAt);
       res.status(401).json({ error: "expired token" });
       return;
     }
@@ -56,7 +56,7 @@ const emailVerificaitonController = async (req: Request, res: Response) => {
       const updatedUser = await User.findOneAndUpdate(
         { email: user.email },
         { $set: { "additionalInfo.isVerified": true } },
-        { new: true },
+        { new: true }
       );
       if (!updatedUser) return;
 
@@ -69,7 +69,6 @@ const emailVerificaitonController = async (req: Request, res: Response) => {
         role: updatedUser.additionalInfo!.role,
       };
 
-
       // Return updated user info
       // we always have updatedUser here unless we have an exception so turnery operator might be replaceable by ! i guess:)
       /*
@@ -80,7 +79,7 @@ const emailVerificaitonController = async (req: Request, res: Response) => {
         isVerified: updatedUser?.additionalInfo!.isVerified,
       });
       */
-      res.redirect("/")
+      res.redirect("/");
     } catch {
       res.status(500).json({ error: "please try again later" });
     }

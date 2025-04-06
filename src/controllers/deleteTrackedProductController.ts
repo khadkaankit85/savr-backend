@@ -11,25 +11,22 @@ interface DeleteTrackedProductRequest extends Request {
 
 export const deleteTrackedProduct = async (
   req: DeleteTrackedProductRequest,
-  res: Response,
+  res: Response
 ) => {
   const { userId, productId } = req.body;
 
-  console.log(`req.body userId: ${userId}`);
-
   try {
     const user = await User.findById(userId);
-    console.log(`user - ${user}`);
 
     if (!user) {
       res.status(403).json({ message: "User not found" });
       return;
     }
 
-    user.bestBuyProducts = user.bestBuyProducts.filter(
-      (id: mongoose.Types.ObjectId) => id.toString() !== productId,
-    );
+    // Filter out the product and reassign the array
+    user.bestBuyProducts.pull({ product: productId });
 
+    // Save the updated user document
     await user.save();
     res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {

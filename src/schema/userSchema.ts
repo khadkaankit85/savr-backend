@@ -1,6 +1,7 @@
 import mongoose, { CallbackError } from "mongoose";
 import bcrypt from "bcrypt";
 import bestBuy_products from "../models/bestBuyData";
+import { number } from "zod";
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
@@ -76,8 +77,12 @@ const userSchema = new Schema({
   },
   bestBuyProducts: [
     {
-      type: Schema.Types.ObjectId,
-      ref: "bestBuy_products",
+      product: {
+        type: Schema.Types.ObjectId,
+        ref: "bestBuy_products",
+        required: true,
+      },
+      wantedPrice: { type: Number, default: 0 },
     },
   ],
 });
@@ -107,7 +112,7 @@ userSchema.pre("save", async function (next) {
 
 // Method to compare passwords
 userSchema.methods.comparePassword = async function (
-  candidatePassword: string,
+  candidatePassword: string
 ) {
   return await bcrypt.compare(candidatePassword, this.password);
 };

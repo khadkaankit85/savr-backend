@@ -23,7 +23,7 @@ const productSchema = new Schema({
   saleEndDate: Date,
   customerRating: Number,
   customerRatingCount: Number,
-  sku: { unique: true, required: true, type: String },
+  sku: { type: String },
   name: String,
   isOnSale: Boolean,
   saving: Number,

@@ -13,8 +13,9 @@ export const getSavedProducts = async (req: Request, res: Response) => {
     }
 
     // finds by ID
+    const productIds = user.bestBuyProducts.map((item) => item.product);
     const productDetails = await bestBuy_products.find({
-      _id: { $in: user.bestBuyProducts },
+      _id: { $in: productIds },
     });
 
     res.status(200).json({ products: productDetails });
