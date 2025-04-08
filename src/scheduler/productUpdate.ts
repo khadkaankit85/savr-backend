@@ -49,7 +49,7 @@ async function updateProducts() {
 
     const productDetails: PulledProducts[] = await bestBuy_products.find({});
 
-    console.log(`Pulled products: ${productDetails}`);
+    // console.log(`Pulled products: ${productDetails}`);
 
     for (let i = 0; i < productDetails.length; i++) {
       const product = productDetails[i];
