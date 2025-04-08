@@ -49,6 +49,6 @@ const productSchema = new Schema({
   priceDateHistory: [{ Number, Date }],
 });
 
-const bestBuy_products = model("bestBuy_products", productSchema);
+const products = model("products", productSchema);
 
-export default bestBuy_products;
+export default products;

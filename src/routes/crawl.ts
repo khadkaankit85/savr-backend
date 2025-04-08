@@ -7,7 +7,7 @@ import {
 } from "../crawls/crawler";
 import { log } from "console";
 import { string } from "zod";
-import bestBuy_products from "../models/bestBuyData";
+import products from "../models/bestBuyData";
 import User from "../schema/userSchema";
 import productSchema from "../schema/productSchema";
 import dotenv from "dotenv";
@@ -47,7 +47,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
     finalData.product = finalData.product || {};
     finalData.product.url = url;
 
-    const existingProduct = await bestBuy_products.findOne({
+    const existingProduct = await products.findOne({
       url: finalData.product.url,
     });
     const user = await User.findById(userSession);
@@ -69,7 +69,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         },
       ];
 
-      const newProduct = await bestBuy_products.create(finalData.product);
+      const newProduct = await products.create(finalData.product);
 
       if (newProduct && newProduct._id) {
         user.bestBuyProducts.push({
@@ -123,7 +123,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
           "[crawl.ts:/bb: Existing product: updating price since unequal date"
         );
 
-        await bestBuy_products.updateOne(
+        await products.updateOne(
           { sku: existingProduct.sku },
           {
             $push: {
@@ -185,7 +185,7 @@ router.get("/updater", async (req: Request, res: Response): Promise<void> => {
     finalData.product = finalData.product || {};
     finalData.product.url = url;
 
-    const existingProduct = await bestBuy_products.findOne({
+    const existingProduct = await products.findOne({
       url: finalData.product.url,
     });
 
@@ -209,7 +209,7 @@ router.get("/updater", async (req: Request, res: Response): Promise<void> => {
       } at ${new Date()} is on sale == ${finalData.product.isOnSale}`
     );
 
-    await bestBuy_products.updateOne(
+    await products.updateOne(
       { url: existingProduct.url },
       {
         $push: {

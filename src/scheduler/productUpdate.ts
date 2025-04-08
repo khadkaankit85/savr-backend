@@ -1,5 +1,5 @@
 import { log } from "console";
-import bestBuy_products from "../models/bestBuyData";
+import products from "../models/bestBuyData";
 import mongoose, { mongo } from "mongoose";
 import axios from "axios";
 import dotenv from "dotenv";
@@ -47,7 +47,7 @@ async function updateProducts() {
       console.log("Connection is not successful.");
     }
 
-    const productDetails: PulledProducts[] = await bestBuy_products.find({});
+    const productDetails: PulledProducts[] = await products.find({});
 
     // console.log(`Pulled products: ${productDetails}`);
 
