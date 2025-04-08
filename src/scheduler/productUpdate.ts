@@ -17,7 +17,21 @@ interface PulledProducts {
 }
 
 dotenv.config();
-const db_url = process.env.DATABASE_URL;
+const environment = process.env.ENVIRONMENT;
+
+// const db_url = process.env.DATABASE_URL;
+const db_url =
+  environment === "prod"
+    ? process.env.DATABASE_URL
+    : process.env.LOCAL_DATABASE_URL;
+
+const backend_url =
+  environment === "prod"
+    ? process.env.BACKEND_URL
+    : process.env.LOCAL_BACKEND_URL;
+console.log(
+  `Environment is: ${environment}, setting backend url to:  ${backend_url}, database as ${db_url}`
+);
 
 async function updateProducts() {
   try {
@@ -34,6 +48,8 @@ async function updateProducts() {
     }
 
     const productDetails: PulledProducts[] = await bestBuy_products.find({});
+
+    console.log(`Pulled products: ${productDetails}`);
 
     for (let i = 0; i < productDetails.length; i++) {
       const product = productDetails[i];
@@ -72,14 +88,17 @@ async function updateProducts() {
 
         try {
           const response = await axios.get(
-            `https://savr.one/api/crawl/updater?url=${productUrl}`,
+            `${backend_url}/api/crawl/updater?url=${productUrl}`,
             {
               headers: {
                 Authorization: `Bearer ${process.env.SCRAPER_API_TOKEN}`,
               },
             }
           );
-          console.log(`[priceUpdate worker] - Product successfully updated!`);
+          console.log(
+            `[priceUpdate worker] - Product successfully updated: `,
+            JSON.stringify(response.data, null, 2)
+          );
         } catch (error) {
           console.error(
             "[priceUpdate worker] - Unable to update product date",
@@ -115,5 +134,4 @@ function dateIsToday(d1: Date): boolean {
   return today.getTime() === productDate.getTime();
 }
 
-// log(process.env.SCRAPER_API_TOKEN);
 updateProducts();

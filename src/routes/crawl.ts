@@ -58,7 +58,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
     }
 
     if (!existingProduct) {
-      console.log("New product...saving to database");
+      console.log(" [crawl.ts:/bb: New product...saving to database");
 
       // Add new product to the database
       finalData.product.url = url;
@@ -78,12 +78,12 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         });
         await user.save();
       } else {
-        console.log("Error: Failed to create new product");
+        console.log("[crawl.ts:/bb: Error: Failed to create new product");
         return;
       }
     } else {
       console.log(
-        "Existing product, adding to user but not saving to database."
+        "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
       );
 
       // Add the existing product to the user's tracked products
@@ -98,7 +98,9 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         });
         await user.save();
       } else {
-        console.log("Product already exists in the user's tracked list.");
+        console.log(
+          "[crawl.ts:/bb: Product already exists in the user's tracked list."
+        );
       }
 
       // Update price history if needed
@@ -111,13 +113,15 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         ? new Date(lastPriceEntry.Date).toISOString().split("T")[0]
         : null;
 
-      console.log("Check if price update needed...");
+      console.log("[crawl.ts:/bb: Check if price update needed...");
 
       if (
         lastEntryDate !== today ||
         lastPriceEntry?.Number !== finalData.product.priceWithoutEhf
       ) {
-        console.log("Existing product: updating price since unequal date");
+        console.log(
+          "[crawl.ts:/bb: Existing product: updating price since unequal date"
+        );
 
         await bestBuy_products.updateOne(
           { sku: existingProduct.sku },
@@ -136,14 +140,16 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
           }
         );
       } else {
-        console.log("No update needed: Price and date are the same.");
+        console.log(
+          "[crawl.ts:/bb: No update needed: Price and date are the same."
+        );
       }
 
       res.status(200).json({ product: existingProduct });
       return;
     }
   } catch (error) {
-    console.log("Error fetching data:", error);
+    console.log("[crawl.ts:/bb: Error fetching data:", error);
     res.status(500).json({ message: "Error fetching data" });
   }
 });
@@ -182,12 +188,26 @@ router.get("/updater", async (req: Request, res: Response): Promise<void> => {
     const existingProduct = await bestBuy_products.findOne({
       url: finalData.product.url,
     });
+
+    console.log(
+      `[crawl.ts:/updater: Existing product check: ${existingProduct?.regularPrice} === ${finalData.product.url}`
+    );
+
     if (!existingProduct) {
-      console.log("No existing product");
+      console.log("crawl.ts:/updater: No existing product");
       return;
     } else {
-      console.log("Existing product found. Checking for updates...");
+      console.log(
+        "crawl.ts:/updater: Existing product found. Checking for updates..."
+      );
     }
+
+    console.log(`crawl.ts:/updater: Update query: ${url}`);
+    console.log(
+      `crawl.ts:/updater: Update payload: ${
+        finalData.product.priceWithoutEhf
+      } at ${new Date()} is on sale == ${finalData.product.isOnSale}`
+    );
 
     await bestBuy_products.updateOne(
       { url: existingProduct.url },
@@ -205,9 +225,11 @@ router.get("/updater", async (req: Request, res: Response): Promise<void> => {
         },
       }
     );
-    res.status(200).json({ message: "Product processed successfully" });
+    res
+      .status(200)
+      .json({ message: "crawl.ts:/updater: Product processed successfully" });
   } catch (error) {
-    console.log("Error fetching data:", error);
+    console.log(" crawl.ts:/updater:Error fetching data:", error);
     res.status(500).json({ message: "Error fetching data" });
   }
 });
