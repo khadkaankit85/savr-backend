@@ -60,16 +60,29 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
     if (!existingProduct) {
       console.log(" [crawl.ts:/bb: New product...saving to database");
 
-      // Add new product to the database
+      // Add new product to the databas
+      //
+      //
+
       finalData.product.url = url;
       finalData.product.priceDateHistory = [
         {
-          Number: finalData.product.priceWithEhf,
+          Number: finalData.product.regularPrice,
           Date: new Date(),
         },
       ];
 
-      const newProduct = await products.create(finalData.product);
+      // console.log(
+      //   `Unparsed data: ${JSON.stringify(finalData.product, null, 2)}`
+      // );
+      const finalParsedData = await parseBestBuyDataForMongoDB(
+        finalData.product
+      );
+      // console.log(
+      //   `Final parsed data: ${JSON.stringify(finalParsedData, null, 2)}`
+      // );
+
+      const newProduct = await products.create(finalParsedData);
 
       if (newProduct && newProduct._id) {
         user.bestBuyProducts.push({
@@ -117,7 +130,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
 
       if (
         lastEntryDate !== today ||
-        lastPriceEntry?.Number !== finalData.product.priceWithoutEhf
+        lastPriceEntry?.Number !== finalData.product.regularPrice
       ) {
         console.log(
           "[crawl.ts:/bb: Existing product: updating price since unequal date"
@@ -128,14 +141,12 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
           {
             $push: {
               priceDateHistory: {
-                Number: finalData.product.priceWithoutEhf,
+                Number: finalData.product.regularPrice,
                 Date: new Date(),
               },
             },
             $set: {
-              priceWithoutEhf: finalData.product.priceWithoutEhf,
               regularPrice: finalData.product.regularPrice,
-              isOnSale: finalData.product.isOnSale,
             },
           }
         );
@@ -203,25 +214,18 @@ router.get("/updater", async (req: Request, res: Response): Promise<void> => {
     }
 
     console.log(`crawl.ts:/updater: Update query: ${url}`);
-    console.log(
-      `crawl.ts:/updater: Update payload: ${
-        finalData.product.priceWithoutEhf
-      } at ${new Date()} is on sale == ${finalData.product.isOnSale}`
-    );
 
     await products.updateOne(
       { url: existingProduct.url },
       {
         $push: {
           priceDateHistory: {
-            Number: finalData.product.priceWithoutEhf,
+            Number: finalData.product.regularPrice,
             Date: new Date(),
           },
         },
         $set: {
-          priceWithoutEhf: finalData.product.priceWithoutEhf,
           regularPrice: finalData.product.regularPrice,
-          isOnSale: finalData.product.isOnSale,
         },
       }
     );
@@ -233,5 +237,23 @@ router.get("/updater", async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: "Error fetching data" });
   }
 });
+
+async function parseBestBuyDataForMongoDB(scrapedData: { [key: string]: any }) {
+  const finalData = {
+    sku: scrapedData.sku,
+    name: scrapedData.name,
+    customerRating: scrapedData.customerRating,
+    customerRatingCount: scrapedData.customerRatingCount,
+    regularPrice: scrapedData.regularPrice,
+    salePrice: scrapedData.priceWithoutEhf,
+    images: scrapedData.additionalImages,
+    brandName: scrapedData.brandName,
+    longDescription: scrapedData.longDescription,
+    url: scrapedData.url,
+    priceDateHistory: scrapedData.priceDateHistory,
+  };
+
+  return finalData;
+}
 
 export default router;
