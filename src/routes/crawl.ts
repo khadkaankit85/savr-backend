@@ -11,8 +11,97 @@ import bestBuy_products from "../models/bestBuyData";
 import User from "../schema/userSchema";
 import productSchema from "../schema/productSchema";
 import dotenv from "dotenv";
+import { parse } from "path";
 
 const router = express.Router();
+
+// Track product defaults to /BB router so I'll have to redirect it to an API route that runs logic if it's BB or Sephora right now.
+router.get(
+  "/crawl-chooser",
+  async (req: Request, res: Response): Promise<void> => {
+    const url = req.query.url as string;
+
+    // https://www.bestbuy.ca/en-ca/product/
+    // https://www.sephora.com/ca/en/
+
+    const weblist: string[] = ["www.bestbuy.ca", "www.sephora.com/ca"];
+
+    try {
+      const parsedUrl = new URL(url);
+      const hostname = parsedUrl.hostname;
+      const pathname = parsedUrl.pathname;
+
+      // Check for bestbuy
+      if (hostname == "www.bestbuy.ca") {
+        res.redirect(`/BB?url=${encodeURIComponent(url)}`);
+      } else if (hostname == "www.sephora.com" && pathname.startsWith("/ca")) {
+        res.redirect(`/sephora?url=${encodeURIComponent(url)}`);
+      } else {
+        // this is where the general AI parser would be
+        res.status(400).send("Unsupported URL.");
+      }
+    } catch (error) {
+      res.status(400).send("Invalid URI format");
+    }
+  }
+);
+
+router.get("sephora", async (req: Request, res: Response): Promise<void> => {
+  const url = req.query.url as string;
+
+  const apiToken = req.headers["authorization"];
+  const userSession = req.session.user?.id;
+
+  if (apiToken !== `Bearer ${process.env.SCRAPER_API_TOKEN}`) {
+    if (!userSession) {
+      res.status(401).json("Unauthorized user");
+      return;
+    }
+  }
+
+  if (!url) {
+    res.status(400).json({ message: "URL is required" });
+    return;
+  }
+
+  try {
+    // https://www.sephora.com/api/v3/users/profiles/current/product/P393401?preferedSku=1359694&countryCode=CA&loc=en-CA
+    // Params:
+    // countryCode: CA
+    // loc: en-CA
+    // preferredSku
+
+    const sampleShapeofAPI = {
+      currentSku: {
+        targetUrl: "/product/luminous-silk-foundation-P393401?skuId=1359694",
+        skuId: "1359694",
+        listPrice: "$85.00",
+        alternateImages: [
+          {
+            image250:
+              "https://www.sephora.com/productimages/sku/s2789857-av-1-zoom.jpg?imwidth=250",
+            altText:
+              "Armani Beauty Luminous Silk Natural Glow Foundation in 9 Image 2",
+            imageUrl:
+              "https://www.sephora.com/productimages/sku/s2789857-av-1-zoom.jpg",
+          },
+        ],
+        skuImages: [
+          {
+            image250:
+              "https://www.sephora.com/productimages/sku/s1359694-main-zoom.jpg?imwidth=250",
+            imageUrl:
+              "https://www.sephora.com/productimages/sku/s1359694-main-zoom.jpg",
+          },
+        ],
+      },
+    };
+
+    // Do axios get for the url
+    // Get the specific sku to choose since it will return a bunch of other skus
+    // save to the shape of the productSchema
+  } catch (error) {}
+});
 
 router.get("/BB", async (req: Request, res: Response): Promise<void> => {
   const url = req.query.url as string;

@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 const { Schema, model } = mongoose;
 
+// TODO rename this script to productData.ts instead of bestBuy since I made it universal.
+
 const imageSchema = new Schema({
   mimeType: String,
   size: {
