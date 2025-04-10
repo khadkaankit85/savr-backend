@@ -47,7 +47,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
     finalData.product = finalData.product || {};
     finalData.product.url = url;
 
-    const existingProduct = await products.findOne({
+    let existingProduct = await products.findOne({
       url: finalData.product.url,
     });
     const user = await User.findById(userSession);
@@ -90,6 +90,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
           wantedPrice: 0,
         });
         await user.save();
+        existingProduct = newProduct;
       } else {
         console.log("[crawl.ts:/bb: Error: Failed to create new product");
         return;
@@ -102,7 +103,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
       // Add the existing product to the user's tracked products
       if (
         !user.bestBuyProducts.some(
-          (item) => item.product.toString() === existingProduct._id.toString()
+          (item) => item.product.toString() === existingProduct?._id.toString()
         )
       ) {
         user.bestBuyProducts.push({
