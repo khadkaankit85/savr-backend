@@ -46,8 +46,10 @@ router.get(
   }
 );
 
-router.get("sephora", async (req: Request, res: Response): Promise<void> => {
+router.get("/sephora", async (req: Request, res: Response): Promise<void> => {
   const url = req.query.url as string;
+
+  console.log(`[crawl.ts - /sephora] - url: ${url}`);
 
   const apiToken = req.headers["authorization"];
   const userSession = req.session.user?.id;
