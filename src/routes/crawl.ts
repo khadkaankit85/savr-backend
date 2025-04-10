@@ -94,11 +94,11 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         console.log("[crawl.ts:/bb: Error: Failed to create new product");
         return;
       }
+      // SKIPS HERE
     } else {
       console.log(
         "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
       );
-
       // Add the existing product to the user's tracked products
       if (
         !user.bestBuyProducts.some(
@@ -155,10 +155,9 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
           "[crawl.ts:/bb: No update needed: Price and date are the same."
         );
       }
-
-      res.status(200).json({ product: existingProduct });
-      return;
     }
+    res.status(200).json({ product: existingProduct });
+    return;
   } catch (error) {
     console.log("[crawl.ts:/bb: Error fetching data:", error);
     res.status(500).json({ message: "Error fetching data" });
