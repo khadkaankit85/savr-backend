@@ -40,7 +40,6 @@ app.use(
 // console.log("CORS allowed origin:", appConfigs.frontendUrl);
 
 const swaggerDocument = YAML.load("./swagger.yaml");
-
 connectToDatabase();
 app.use(
   session({

@@ -76,7 +76,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
       //   `Unparsed data: ${JSON.stringify(finalData.product, null, 2)}`
       // );
       const finalParsedData = await parseBestBuyDataForMongoDB(
-        finalData.product
+        finalData.product,
       );
       // console.log(
       //   `Final parsed data: ${JSON.stringify(finalParsedData, null, 2)}`
@@ -96,13 +96,13 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
       }
     } else {
       console.log(
-        "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
+        "[crawl.ts:/bb: Existing product, adding to user but not saving to database.",
       );
 
       // Add the existing product to the user's tracked products
       if (
         !user.bestBuyProducts.some(
-          (item) => item.product.toString() === existingProduct._id.toString()
+          (item) => item.product.toString() === existingProduct._id.toString(),
         )
       ) {
         user.bestBuyProducts.push({
@@ -112,7 +112,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         await user.save();
       } else {
         console.log(
-          "[crawl.ts:/bb: Product already exists in the user's tracked list."
+          "[crawl.ts:/bb: Product already exists in the user's tracked list.",
         );
       }
 
@@ -133,7 +133,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         lastPriceEntry?.Number !== finalData.product.regularPrice
       ) {
         console.log(
-          "[crawl.ts:/bb: Existing product: updating price since unequal date"
+          "[crawl.ts:/bb: Existing product: updating price since unequal date",
         );
 
         await products.updateOne(
@@ -148,11 +148,11 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
             $set: {
               regularPrice: finalData.product.regularPrice,
             },
-          }
+          },
         );
       } else {
         console.log(
-          "[crawl.ts:/bb: No update needed: Price and date are the same."
+          "[crawl.ts:/bb: No update needed: Price and date are the same.",
         );
       }
 
@@ -201,7 +201,7 @@ router.get("/updater", async (req: Request, res: Response): Promise<void> => {
     });
 
     console.log(
-      `[crawl.ts:/updater: Existing product check: ${existingProduct?.regularPrice} === ${finalData.product.url}`
+      `[crawl.ts:/updater: Existing product check: ${existingProduct?.regularPrice} === ${finalData.product.url}`,
     );
 
     if (!existingProduct) {
@@ -209,7 +209,7 @@ router.get("/updater", async (req: Request, res: Response): Promise<void> => {
       return;
     } else {
       console.log(
-        "crawl.ts:/updater: Existing product found. Checking for updates..."
+        "crawl.ts:/updater: Existing product found. Checking for updates...",
       );
     }
 
@@ -227,7 +227,7 @@ router.get("/updater", async (req: Request, res: Response): Promise<void> => {
         $set: {
           regularPrice: finalData.product.regularPrice,
         },
-      }
+      },
     );
     res
       .status(200)
