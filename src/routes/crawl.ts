@@ -47,7 +47,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
     finalData.product = finalData.product || {};
     finalData.product.url = url;
 
-    const existingProduct = await products.findOne({
+    let existingProduct = await products.findOne({
       url: finalData.product.url,
     });
     const user = await User.findById(userSession);
@@ -90,19 +90,20 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
           wantedPrice: 0,
         });
         await user.save();
+        existingProduct = newProduct;
       } else {
         console.log("[crawl.ts:/bb: Error: Failed to create new product");
         return;
       }
+      // SKIPS HERE
     } else {
       console.log(
         "[crawl.ts:/bb: Existing product, adding to user but not saving to database.",
       );
-
       // Add the existing product to the user's tracked products
       if (
         !user.bestBuyProducts.some(
-          (item) => item.product.toString() === existingProduct._id.toString(),
+          (item) => item.product.toString() === existingProduct?._id.toString(),
         )
       ) {
         user.bestBuyProducts.push({
@@ -155,10 +156,9 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
           "[crawl.ts:/bb: No update needed: Price and date are the same.",
         );
       }
-
-      res.status(200).json({ product: existingProduct });
-      return;
     }
+    res.status(200).json({ product: existingProduct });
+    return;
   } catch (error) {
     console.log("[crawl.ts:/bb: Error fetching data:", error);
     res.status(500).json({ message: "Error fetching data" });

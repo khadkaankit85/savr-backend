@@ -11,7 +11,7 @@ interface DeleteTrackedProductRequest extends Request {
 
 export const deleteTrackedProduct = async (
   req: DeleteTrackedProductRequest,
-  res: Response
+  res: Response,
 ) => {
   const { userId, productId } = req.body;
 

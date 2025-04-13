@@ -56,7 +56,7 @@ const emailVerificaitonController = async (req: Request, res: Response) => {
       const updatedUser = await User.findOneAndUpdate(
         { email: user.email },
         { $set: { "additionalInfo.isVerified": true } },
-        { new: true }
+        { new: true },
       );
       if (!updatedUser) return;
 
