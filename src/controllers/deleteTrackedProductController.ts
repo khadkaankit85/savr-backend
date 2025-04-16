@@ -11,7 +11,7 @@ interface DeleteTrackedProductRequest extends Request {
 
 export const deleteTrackedProduct = async (
   req: DeleteTrackedProductRequest,
-  res: Response,
+  res: Response
 ) => {
   const { userId, productId } = req.body;
 
@@ -24,7 +24,7 @@ export const deleteTrackedProduct = async (
     }
 
     // Filter out the product and reassign the array
-    user.bestBuyProducts.pull({ product: productId });
+    user.products.pull({ product: productId });
 
     // Save the updated user document
     await user.save();
