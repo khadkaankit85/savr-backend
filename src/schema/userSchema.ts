@@ -1,6 +1,6 @@
 import mongoose, { CallbackError } from "mongoose";
 import bcrypt from "bcrypt";
-import bestBuy_products from "../models/bestBuyData";
+import products from "../models/bestBuyData";
 import { number } from "zod";
 const { Schema } = mongoose;
 
@@ -112,7 +112,7 @@ userSchema.pre("save", async function (next) {
 
 // Method to compare passwords
 userSchema.methods.comparePassword = async function (
-  candidatePassword: string
+  candidatePassword: string,
 ) {
   return await bcrypt.compare(candidatePassword, this.password);
 };

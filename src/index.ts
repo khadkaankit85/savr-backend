@@ -25,7 +25,7 @@ const app = express();
 //well known file for first classs cookie support
 app.use(
   "/.well-known",
-  express.static(path.join(__dirname, "public/.well-known"))
+  express.static(path.join(__dirname, "public/.well-known")),
 );
 
 // Enable CORS
@@ -34,13 +34,12 @@ app.use(
     origin: [appConfigs.frontendUrl, "https://savr.one"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
-  })
+  }),
 );
 
 // console.log("CORS allowed origin:", appConfigs.frontendUrl);
 
 const swaggerDocument = YAML.load("./swagger.yaml");
-
 connectToDatabase();
 app.use(
   session({
@@ -67,7 +66,7 @@ app.use(
         secure: false,
       }),
     },
-  })
+  }),
 );
 
 app.use(passport.initialize());

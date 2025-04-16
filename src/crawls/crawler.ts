@@ -116,7 +116,7 @@ export function getBestBuyScriptTagOnly(html: string): string | null {
 
           // Find the product object that contains "ehf"
           const productWithEHF = productMatches.find((match) =>
-            match[0].includes('"ehf"')
+            match[0].includes('"ehf"'),
           );
 
           // If found, return it

@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import productModel from "../schema/productSchema";
 import { log } from "console";
-import bestBuy_products from "../models/bestBuyData";
+import products from "../models/bestBuyData";
 const router = express.Router();
 
 //<domain>/<routername>/autocompletion?query=<productname>&limit=<limit>
@@ -36,17 +36,15 @@ router.get("/history", async (req: Request, res: Response) => {
     return;
   }
   try {
-    const product = await bestBuy_products.findOne({
+    const product = await products.findOne({
       _id: productId,
     });
     res.json({ product });
   } catch {
-    res
-      .status(500)
-      .json({
-        message:
-          "internal server error while querying the database for asked product",
-      });
+    res.status(500).json({
+      message:
+        "internal server error while querying the database for asked product",
+    });
   }
 });
 

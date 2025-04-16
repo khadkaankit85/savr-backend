@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import bestBuy_products from "../models/bestBuyData";
+import products from "../models/bestBuyData";
 import User from "../schema/userSchema";
 
 export const getSavedProducts = async (req: Request, res: Response) => {
@@ -14,7 +14,7 @@ export const getSavedProducts = async (req: Request, res: Response) => {
 
     // finds by ID
     const productIds = user.bestBuyProducts.map((item) => item.product);
-    const productDetails = await bestBuy_products.find({
+    const productDetails = await products.find({
       _id: { $in: productIds },
     });
 

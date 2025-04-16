@@ -7,7 +7,7 @@ import {
 } from "../crawls/crawler";
 import { log } from "console";
 import { string } from "zod";
-import bestBuy_products from "../models/bestBuyData";
+import products from "../models/bestBuyData";
 import User from "../schema/userSchema";
 import productSchema from "../schema/productSchema";
 import dotenv from "dotenv";
@@ -138,7 +138,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
     finalData.product = finalData.product || {};
     finalData.product.url = url;
 
-    const existingProduct = await bestBuy_products.findOne({
+    let existingProduct = await products.findOne({
       url: finalData.product.url,
     });
     const user = await User.findById(userSession);
@@ -151,16 +151,29 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
     if (!existingProduct) {
       console.log(" [crawl.ts:/bb: New product...saving to database");
 
-      // Add new product to the database
+      // Add new product to the databas
+      //
+      //
+
       finalData.product.url = url;
       finalData.product.priceDateHistory = [
         {
-          Number: finalData.product.priceWithEhf,
+          Number: finalData.product.regularPrice,
           Date: new Date(),
         },
       ];
 
-      const newProduct = await bestBuy_products.create(finalData.product);
+      // console.log(
+      //   `Unparsed data: ${JSON.stringify(finalData.product, null, 2)}`
+      // );
+      const finalParsedData = await parseBestBuyDataForMongoDB(
+        finalData.product,
+      );
+      // console.log(
+      //   `Final parsed data: ${JSON.stringify(finalParsedData, null, 2)}`
+      // );
+
+      const newProduct = await products.create(finalParsedData);
 
       if (newProduct && newProduct._id) {
         user.bestBuyProducts.push({
@@ -168,19 +181,20 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
           wantedPrice: 0,
         });
         await user.save();
+        existingProduct = newProduct;
       } else {
         console.log("[crawl.ts:/bb: Error: Failed to create new product");
         return;
       }
+      // SKIPS HERE
     } else {
       console.log(
-        "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
+        "[crawl.ts:/bb: Existing product, adding to user but not saving to database.",
       );
-
       // Add the existing product to the user's tracked products
       if (
         !user.bestBuyProducts.some(
-          (item) => item.product.toString() === existingProduct._id.toString()
+          (item) => item.product.toString() === existingProduct?._id.toString(),
         )
       ) {
         user.bestBuyProducts.push({
@@ -190,7 +204,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         await user.save();
       } else {
         console.log(
-          "[crawl.ts:/bb: Product already exists in the user's tracked list."
+          "[crawl.ts:/bb: Product already exists in the user's tracked list.",
         );
       }
 
@@ -208,37 +222,34 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
 
       if (
         lastEntryDate !== today ||
-        lastPriceEntry?.Number !== finalData.product.priceWithoutEhf
+        lastPriceEntry?.Number !== finalData.product.regularPrice
       ) {
         console.log(
-          "[crawl.ts:/bb: Existing product: updating price since unequal date"
+          "[crawl.ts:/bb: Existing product: updating price since unequal date",
         );
 
-        await bestBuy_products.updateOne(
+        await products.updateOne(
           { sku: existingProduct.sku },
           {
             $push: {
               priceDateHistory: {
-                Number: finalData.product.priceWithoutEhf,
+                Number: finalData.product.regularPrice,
                 Date: new Date(),
               },
             },
             $set: {
-              priceWithoutEhf: finalData.product.priceWithoutEhf,
               regularPrice: finalData.product.regularPrice,
-              isOnSale: finalData.product.isOnSale,
             },
-          }
+          },
         );
       } else {
         console.log(
-          "[crawl.ts:/bb: No update needed: Price and date are the same."
+          "[crawl.ts:/bb: No update needed: Price and date are the same.",
         );
       }
-
-      res.status(200).json({ product: existingProduct });
-      return;
     }
+    res.status(200).json({ product: existingProduct });
+    return;
   } catch (error) {
     console.log("[crawl.ts:/bb: Error fetching data:", error);
     res.status(500).json({ message: "Error fetching data" });
@@ -276,12 +287,12 @@ router.get("/updater", async (req: Request, res: Response): Promise<void> => {
     finalData.product = finalData.product || {};
     finalData.product.url = url;
 
-    const existingProduct = await bestBuy_products.findOne({
+    const existingProduct = await products.findOne({
       url: finalData.product.url,
     });
 
     console.log(
-      `[crawl.ts:/updater: Existing product check: ${existingProduct?.regularPrice} === ${finalData.product.url}`
+      `[crawl.ts:/updater: Existing product check: ${existingProduct?.regularPrice} === ${finalData.product.url}`,
     );
 
     if (!existingProduct) {
@@ -289,32 +300,25 @@ router.get("/updater", async (req: Request, res: Response): Promise<void> => {
       return;
     } else {
       console.log(
-        "crawl.ts:/updater: Existing product found. Checking for updates..."
+        "crawl.ts:/updater: Existing product found. Checking for updates...",
       );
     }
 
     console.log(`crawl.ts:/updater: Update query: ${url}`);
-    console.log(
-      `crawl.ts:/updater: Update payload: ${
-        finalData.product.priceWithoutEhf
-      } at ${new Date()} is on sale == ${finalData.product.isOnSale}`
-    );
 
-    await bestBuy_products.updateOne(
+    await products.updateOne(
       { url: existingProduct.url },
       {
         $push: {
           priceDateHistory: {
-            Number: finalData.product.priceWithoutEhf,
+            Number: finalData.product.regularPrice,
             Date: new Date(),
           },
         },
         $set: {
-          priceWithoutEhf: finalData.product.priceWithoutEhf,
           regularPrice: finalData.product.regularPrice,
-          isOnSale: finalData.product.isOnSale,
         },
-      }
+      },
     );
     res
       .status(200)
@@ -324,5 +328,23 @@ router.get("/updater", async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: "Error fetching data" });
   }
 });
+
+async function parseBestBuyDataForMongoDB(scrapedData: { [key: string]: any }) {
+  const finalData = {
+    sku: scrapedData.sku,
+    name: scrapedData.name,
+    customerRating: scrapedData.customerRating,
+    customerRatingCount: scrapedData.customerRatingCount,
+    regularPrice: scrapedData.regularPrice,
+    salePrice: scrapedData.priceWithoutEhf,
+    images: scrapedData.additionalImages,
+    brandName: scrapedData.brandName,
+    longDescription: scrapedData.longDescription,
+    url: scrapedData.url,
+    priceDateHistory: scrapedData.priceDateHistory,
+  };
+
+  return finalData;
+}
 
 export default router;
