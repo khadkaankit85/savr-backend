@@ -12,6 +12,7 @@ import User from "../schema/userSchema";
 import productSchema from "../schema/productSchema";
 import dotenv from "dotenv";
 import { parse } from "path";
+import { sephoraParseProductDetails } from "../utils/parsers";
 
 const router = express.Router();
 
@@ -253,12 +254,15 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         res.status(500).json({ message: "Error fetching data" });
       }
     case "sephora":
-    // Do axios get for the url
-    // Get the specific sku to choose since it will return a bunch of other skus
-    // save to the shape of the productSchema
+      // Do axios get for the url
+      // Get the specific sku to choose since it will return a bunch of other skus
+      // save to the shape of the productSchema
 
-    // TODO do this next
-    // const response = await axios.get(url);
+      let sephoraRawData = await sephoraParseProductDetails(url);
+
+    // TODO parse the data, format it for productSchema then push
+    // [ ] - push to product table
+    // [ ] - push to user saved list
 
     case "other":
       return;
