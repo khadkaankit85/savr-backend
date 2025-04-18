@@ -28,7 +28,7 @@ interface productSchema {
   brandName?: string;
   longDescription?: string;
   url: string;
-  priceDateHistory: { number: number; date: Date }[];
+  priceDateHistory: { Number: number; Date: Date }[];
 }
 
 // Track product defaults to /BB router so I'll have to redirect it to an API route that runs logic if it's BB or Sephora right now.
@@ -289,8 +289,8 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         url: url,
         priceDateHistory: [
           {
-            number: sephoraRawData?.currentSku.listPrice || 0,
-            date: new Date(),
+            Number: sephoraRawData?.currentSku.listPrice || 0,
+            Date: new Date(),
           },
         ],
       };
