@@ -16,6 +16,21 @@ import { sephoraParseProductDetails } from "../utils/parsers";
 
 const router = express.Router();
 
+interface productSchema {
+  sku: string;
+  name: string;
+  isOnSale?: string;
+  customerRating?: Number;
+  customerRatingCount?: Number;
+  regularPrice: Number;
+  salePrice: Number;
+  images: string[];
+  brandName?: string;
+  longDescription?: string;
+  url: string;
+  priceDateHistory: { number: number; date: Date }[];
+}
+
 // Track product defaults to /BB router so I'll have to redirect it to an API route that runs logic if it's BB or Sephora right now.
 router.get(
   "/crawl-chooser",
@@ -254,11 +269,115 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         res.status(500).json({ message: "Error fetching data" });
       }
     case "sephora":
-      // Do axios get for the url
-      // Get the specific sku to choose since it will return a bunch of other skus
+      // [x] Do axios get for the url
+      // [x] Get the specific sku to choose since it will return a bunch of other skus
       // save to the shape of the productSchema
 
       let sephoraRawData = await sephoraParseProductDetails(url);
+      const finalData: productSchema = {
+        sku: sephoraRawData?.currentSku.skuId || "",
+        name: sephoraRawData?.heroImageAltText || "",
+        regularPrice: sephoraRawData?.currentSku.listPrice
+          ? Number(sephoraRawData.currentSku.listPrice)
+          : 0,
+        salePrice: sephoraRawData?.currentSku.listPrice
+          ? Number(sephoraRawData.currentSku.listPrice)
+          : 0,
+        images: sephoraRawData?.currentSku.skuImages?.imageUrl
+          ? [sephoraRawData.currentSku.skuImages.imageUrl]
+          : [],
+        url: url,
+        priceDateHistory: [
+          {
+            number: sephoraRawData?.currentSku.listPrice || 0,
+            date: new Date(),
+          },
+        ],
+      };
+
+      let existingProduct = await products.findOne({
+        url: finalData.url,
+      });
+      const user = await User.findById(userSession);
+
+      if (!user) {
+        console.error("Error: User not found");
+        return;
+      }
+
+      if (!existingProduct) {
+        const newProduct = await products.create(finalData);
+
+        if (newProduct && newProduct._id) {
+          user.products.push({
+            product: newProduct._id,
+            wantedPrice: 0,
+          });
+          await user.save();
+          existingProduct = newProduct;
+        }
+      } else {
+        console.log(
+          "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
+        );
+        // Add the existing product to the user's tracked products
+        if (
+          !user.products.some(
+            (item) =>
+              item.product.toString() === existingProduct?._id.toString()
+          )
+        ) {
+          user.products.push({
+            product: existingProduct._id,
+            wantedPrice: 0,
+          });
+          await user.save();
+        } else {
+          console.log(
+            "[crawl.ts:/bb: Product already exists in the user's tracked list."
+          );
+        }
+
+        // Update price history if needed
+        const lastPriceEntry =
+          existingProduct.priceDateHistory[
+            existingProduct.priceDateHistory.length - 1
+          ];
+        const today = new Date().toISOString().split("T")[0];
+        const lastEntryDate = lastPriceEntry?.Date
+          ? new Date(lastPriceEntry.Date).toISOString().split("T")[0]
+          : null;
+
+        console.log("[crawl.ts:/bb: Check if price update needed...");
+
+        if (
+          lastEntryDate !== today ||
+          lastPriceEntry?.Number !== finalData.regularPrice
+        ) {
+          console.log(
+            "[crawl.ts:/bb: Existing product: updating price since unequal date"
+          );
+
+          await products.updateOne(
+            { sku: existingProduct.sku },
+            {
+              $push: {
+                priceDateHistory: {
+                  Number: finalData.regularPrice,
+                  Date: new Date(),
+                },
+              },
+              $set: {
+                regularPrice: finalData.regularPrice,
+              },
+            }
+          );
+        } else {
+          console.log(
+            "[crawl.ts:/bb: No update needed: Price and date are the same."
+          );
+        }
+      }
 
     // TODO parse the data, format it for productSchema then push
     // [ ] - push to product table

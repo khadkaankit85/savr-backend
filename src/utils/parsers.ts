@@ -4,19 +4,19 @@ import axios from "axios";
 
 interface sephoraSkuData {
   productId: string;
+  heroImageAltText: string;
   currentSku: {
-    targetUrl: string;
     skuId: string;
     alternateImages?: Array<{
       image250?: string;
       altText?: string;
       imageUrl?: string;
     }>;
-    skuImages?: Array<{
+    skuImages?: {
       image250?: string;
       imageUrl?: string;
-    }>;
-    listPrice?: string;
+    };
+    listPrice?: number;
   };
 }
 
@@ -76,8 +76,13 @@ async function sephoraParseProductDetails(
     const data = response.data;
     const finalData = {
       productId: data.productId,
+      heroImageAltText: data.heroImageAltText,
       currentSku: data.currentSku,
     };
+
+    finalData.currentSku.listPrice = stringToNumber(
+      finalData.currentSku.listPrice?.toString() || "$0.00"
+    );
 
     // console.log(finalData);
     return finalData;
@@ -87,7 +92,16 @@ async function sephoraParseProductDetails(
   return null;
 }
 
-sephoraParseProductDetails(
-  "https://www.sephora.com/ca/en/product/satin-hydrating-lipstick-P501496?skuId=2564474&icid2=products%20grid:p501496:product"
-);
+function stringToNumber(str: string) {
+  // $16.00
+  let splitString = str.split("$");
+  let result = Number(splitString[1]);
+  return result;
+}
+
+//  TODO delete after
+// sephoraParseProductDetails(
+//   "https://www.sephora.com/ca/en/product/satin-hydrating-lipstick-P501496?skuId=2564474&icid2=products%20grid:p501496:product"
+// );
+
 export { sephoraParseProductDetails };
