@@ -9,3 +9,7 @@ and if the state of the account remains unverified for a fixed amount of time (e
 3. Todo
 3.1 Limit users from changing their data frequently
 3.2 Add other email providers for sending email
+
+
+# For Matt
+1. Merge feat/sephora first and then feat/universalScrape
