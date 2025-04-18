@@ -12,7 +12,7 @@ import User from "../schema/userSchema";
 import productSchema from "../schema/productSchema";
 import dotenv from "dotenv";
 import { parse } from "path";
-import { sephoraParseProductDetails } from "../utils/parsers";
+import { sephoraParseProductDetails, universalScrape } from "../utils/parsers";
 
 const router = express.Router();
 
@@ -379,12 +379,9 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         }
       }
 
-    // TODO parse the data, format it for productSchema then push
-    // [ ] - push to product table
-    // [ ] - push to user saved list
-
     case "other":
-      return;
+      let aiData = universalScrape(url);
+
     default:
       console.log(`[crawl.ts] - Undefined switch case _default`);
   }
