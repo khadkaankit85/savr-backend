@@ -10,6 +10,7 @@ import { appConfigs } from "../configs/appconfigs";
 import { SessionUser } from "../types/others";
 import { getSavedProducts } from "../controllers/getSavedProductsController";
 import { deleteTrackedProduct } from "../controllers/deleteTrackedProductController";
+import { addAlertOnAProduct } from "../controllers/alertHandlers";
 
 const router = express.Router();
 
@@ -52,5 +53,8 @@ router.post("/login/ep", loginWithEmailAndPassword);
 router.post("/logout", handleLogout);
 
 router.get("/check-session", sessionChecker);
+
+//send the add alert price notification to this route
+router.post("/addAlert", addAlertOnAProduct);
 
 export default router;

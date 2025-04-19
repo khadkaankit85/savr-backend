@@ -17,7 +17,6 @@ const emailVerificaitonController = async (req: Request, res: Response) => {
   // If data is valid
   try {
     const user = await User.findOne({ email: data.data.email });
-
     // Return with 404 if the user doesn't exist
     if (!user) {
       res.status(404).json({ error: "user doesn't exist" });

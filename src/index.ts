@@ -12,12 +12,13 @@ import productRoute from "./routes/products";
 import scrapeRoute from "./routes/scrape";
 import userRoute from "./routes/user";
 import crawlRoute from "./routes/crawl";
-
-import { connectToDatabase } from "./utils/mongooseConnect";
+import adminRoute from "./routes/admin";
 import { appConfigs } from "./configs/appconfigs";
 import mongoose from "mongoose";
 import passport from "passport";
 import path from "node:path";
+import { connectToDatabase } from "./utils/mongooseConnect";
+import { debug } from "node:console";
 
 dotenv.config();
 const app = express();
@@ -99,6 +100,8 @@ app.use("/api", async (req: Request, res: Response, next: NextFunction) => {
 app.use("/api/scrape", scrapeRoute);
 app.use("/api/user", userRoute);
 app.use("/api/crawl", crawlRoute);
+//contains the routes mainly used by admins, for example, a route that sends email to every users belong to this route category
+app.use("/api/admin", adminRoute);
 
 app.get("/", (_req, res) => {
   res.send("hello world");

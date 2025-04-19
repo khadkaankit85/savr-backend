@@ -9,7 +9,7 @@ export const getAccountVerificationEmailText = (link: string) => {
   return `
     <html>
       <head>
-        <style>
+        <style  >
           body {
             font-family: Arial, sans-serif;
             color: #333;
