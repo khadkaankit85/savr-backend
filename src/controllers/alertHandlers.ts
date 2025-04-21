@@ -14,7 +14,6 @@ const addAlertOnAProduct = async (req: Request, res: Response) => {
       { _id: reqFrom.id, "bestBuyProducts.product": productId },
       { $set: { "bestBuyProducts.$.wantedPrice": alertPrice } },
     );
-
     //insert the product into this user
     res.status(200).json({ message: "product added to alert successfully" });
   } catch {

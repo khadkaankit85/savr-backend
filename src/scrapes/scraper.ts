@@ -9,7 +9,7 @@ const defaultHeaders = {
   Accept: "application/json",
 };
 
-interface BestBuyProduct {
+export interface BestBuyProduct {
   name: string;
   regularPrice: number;
   salePrice: number;
