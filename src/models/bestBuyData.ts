@@ -17,6 +17,27 @@ const mediaSchema = new Schema({
   },
 });
 
+export interface PriceEntry {
+  Number: number;
+  Date: Date;
+}
+
+export interface Product {
+  _id?: string;
+  sku: string;
+  name: string;
+  isOnSale?: boolean;
+  customerRating?: number;
+  customerRatingCount?: number;
+  regularPrice: number;
+  salePrice: number;
+  images: string[];
+  brandName?: string;
+  longDescription?: string;
+  url: string;
+  priceDateHistory: PriceEntry[];
+}
+
 const productSchema = new Schema({
   // ehf: Number,
   // saleStartDate: Date,

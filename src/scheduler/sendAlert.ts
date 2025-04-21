@@ -1,6 +1,9 @@
 //TODO: conver this javascript file into typescript file later by adding proper types
-import products from "../models/bestBuyData";
+import { ObjectId } from "mongoose";
+import products, { Product } from "../models/bestBuyData";
 import User from "../schema/userSchema";
+import { BestBuyProduct } from "../scrapes/scraper";
+import sendEmail from "../utils/sendEmail";
 
 //grabs all the users and products from the database,  if the price is lower than threshold, sends the email hehehe
 //1.how will this work? this function will be exposed as an api endpoint
@@ -9,7 +12,6 @@ import User from "../schema/userSchema";
 async function sendAlerts() {
   const users = await User.find({});
   const allproductsfromdb = await products.find({});
-  debugger;
   //hashmap of  userId and the products, for which users will get alert
   const alertStore = new Map();
   //hashmap of users id and their email address
@@ -46,7 +48,29 @@ async function sendAlerts() {
     });
   });
   //use a forEach loop to go through the users in the alertStore, and then send them email
-  //we just use the alertStore here
-  //TODO: send the email to all the key of @alertStore based upon the value, which is an array of the products, which are supposed to be merged together in a single email
+  //we just use the alertStore here, proudctList is everything that you can see when you do db.users.find({}) so basically the bestBuyProducts property of users as of 2025-04-21
+  for (const [userId, productList] of alertStore.entries()) {
+    const email = userStore.get(userId);
+    const productLines = productList
+      .map((pd: { product: ObjectId }) => {
+        const product = productStore.get(pd.product.toString());
+        return `
+          <li>
+            <strong>${product.name}</strong><br />
+            Current Price: <strong>$${product.priceDateHistory.at(-1).Number}</strong><br />
+            <a href="${product.url}" target="_blank">Check it out</a>
+          </li>
+        `;
+      })
+      .join("");
+
+    const emailBody = `
+      <h2>🔥 Price Drop Alert from Savr 🔔</h2>
+      <p>Here are the products you're watching that are now below your desired price:</p>
+      <ul>${productLines}</ul>
+    `;
+
+    await sendEmail(email, "Your tracked products are on SALE!", emailBody);
+  }
 }
 export default sendAlerts;
