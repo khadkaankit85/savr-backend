@@ -111,6 +111,8 @@ async function universalScrapeJS(url: string) {
   try {
     const browser = await puppeteer.launch({
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      executablePath: "/app/.chrome-for-testing/chrome-linux64/chrome",
+      headless: true,
     });
 
     const page = await browser.newPage();

@@ -9,8 +9,7 @@
     "build": "tsc",
     "start": "node dist/src/index.js",
     "debug": "tsx --inspect ./src/index.ts",
-    "d": "npx node-debug index.js",
-    "heroku-postbuild": "npm run build && npx puppeteer browsers install chrome"
+    "d": "npx node-debug index.js"
   },
   "repository": {
     "type": "git",
@@ -38,11 +37,11 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
-    "puppeteer": "^24.6.1",
     "swagger-ui-express": "^5.0.1",
     "typescript": "^5.7.3",
     "yamljs": "^0.3.0",
-    "zod": "^3.24.2"
+    "zod": "^3.24.2",
+    "puppeteer-core": "^19.0.0"
   },
   "devDependencies": {
     "@types/axios": "^0.9.36",
