@@ -2,7 +2,7 @@ import { log } from "node:console";
 import { OpenAI } from "openai";
 import random_user_agent from "../scrapes/agents";
 import axios from "axios";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 import dotenv from "dotenv";
 
 dotenv.config();

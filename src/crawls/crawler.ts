@@ -4,7 +4,7 @@ import { log } from "console";
 import fs, { write } from "fs";
 import cheerio from "cheerio";
 import { JSDOM } from "jsdom";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 
 const defaultHeaders = {
   "User-Agent": random_user_agent(),
@@ -118,7 +118,7 @@ export function getBestBuyScriptTagOnly(html: string): string | null {
 
           // Find the product object that contains "ehf"
           const productWithEHF = productMatches.find((match) =>
-            match[0].includes('"ehf"')
+            match[0].includes('"ehf"'),
           );
 
           // If found, return it
