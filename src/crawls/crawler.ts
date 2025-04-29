@@ -38,7 +38,9 @@ export async function getRawHTML(URL: string): Promise<string> {
  */
 export async function getPuppetRawHTML(URL: string): Promise<string> {
   log("Launching puppet");
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
   log("Puppet: opening page...");
   const page = await browser.newPage();
 
@@ -116,7 +118,7 @@ export function getBestBuyScriptTagOnly(html: string): string | null {
 
           // Find the product object that contains "ehf"
           const productWithEHF = productMatches.find((match) =>
-            match[0].includes('"ehf"'),
+            match[0].includes('"ehf"')
           );
 
           // If found, return it
