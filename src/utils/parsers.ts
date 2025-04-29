@@ -44,7 +44,7 @@ interface universalProduct {
 }
 
 async function sephoraParseProductDetails(
-  url: string
+  url: string,
 ): Promise<sephoraSkuData | null> {
   // https://www.sephora.com/api/v3/users/profiles/current/product/P393401
   // https://www.sephora.com/ca/en/product/nars-light-reflecting-advance-skincare-foundation-P479338?skuId=2514644&icid2=products%20grid:p479338:product
@@ -96,7 +96,7 @@ async function sephoraParseProductDetails(
     };
 
     finalData.currentSku.listPrice = stringToNumber(
-      finalData.currentSku.listPrice?.toString() || "$0.00"
+      finalData.currentSku.listPrice?.toString() || "$0.00",
     );
 
     // console.log(finalData);
@@ -109,14 +109,17 @@ async function sephoraParseProductDetails(
 
 async function universalScrapeJS(url: string) {
   try {
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+
     const page = await browser.newPage();
 
     await page.goto(url, { waitUntil: "networkidle2" });
 
     const rawLd = await page.$$eval(
       'script[type="application/ld+json"]',
-      (nodes) => nodes.map((n) => n.textContent)
+      (nodes) => nodes.map((n) => n.textContent),
     );
 
     console.log(rawLd);
