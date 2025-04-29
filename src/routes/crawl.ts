@@ -12,7 +12,11 @@ import User from "../schema/userSchema";
 import productSchema from "../schema/productSchema";
 import dotenv from "dotenv";
 import { parse } from "path";
-import { sephoraParseProductDetails } from "../utils/parsers";
+import {
+  finalizeWithAi,
+  sephoraParseProductDetails,
+  universalScrapeJS,
+} from "../utils/parsers";
 
 const router = express.Router();
 
@@ -29,6 +33,20 @@ interface productSchema {
   longDescription?: string;
   url: string;
   priceDateHistory: { Number: number; Date: Date }[];
+}
+
+interface aiProductData {
+  sku: string;
+  name: string;
+  customerRating?: number;
+  customerRatingCount?: number;
+  regularPrice: number;
+  salePrice?: number;
+  images: string[];
+  brandName?: string;
+  longDescription?: string;
+  url: string;
+  priceDateHistory?: { Number: number; Date: Date }[];
 }
 
 // Track product defaults to /BB router so I'll have to redirect it to an API route that runs logic if it's BB or Sephora right now.
@@ -146,7 +164,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
 
   // Main switch case
   switch (urlType) {
-    case "bestbuy":
+    case "bestbuy": {
       console.log(`[crawl.ts/bb] - bestbuy url detected, running process`);
       try {
         // Fetch and process HTML for bestbuy
@@ -268,11 +286,9 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         console.log("[crawl.ts:/bb: Error fetching data:", error);
         res.status(500).json({ message: "Error fetching data" });
       }
-    case "sephora":
-      // [x] Do axios get for the url
-      // [x] Get the specific sku to choose since it will return a bunch of other skus
-      // save to the shape of the productSchema
-
+    }
+    case "sephora": {
+      // save to the shape of the productSchema // [x] Get the specific sku to choose since it will return a bunch of other skus // [x] Do axios get for the url
       let sephoraRawData = await sephoraParseProductDetails(url);
       const finalData: productSchema = {
         sku: sephoraRawData?.currentSku.skuId || "",
@@ -378,15 +394,136 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
           );
         }
       }
+    }
+    case "other": {
+      let rawData = await universalScrapeJS(url);
 
-    // TODO parse the data, format it for productSchema then push
-    // [ ] - push to product table
-    // [ ] - push to user saved list
+      if (!rawData) {
+        console.log("[crawl.ts] - No raw data returned from universalScrapeJS");
+        return; // Exit the case if rawData is null or undefined
+      }
 
-    case "other":
-      return;
-    default:
-      console.log(`[crawl.ts] - Undefined switch case _default`);
+      let aiDataResponse = await finalizeWithAi(rawData);
+
+      if (!aiDataResponse?.content) {
+        console.log("[crawl.ts] - finalizeWithAi returned null");
+        return; // Exit the case if AI response is null
+      }
+
+      // Safely access aiDataResponse.content
+      let finalData: aiProductData;
+
+      try {
+        const parsedData = JSON.parse(aiDataResponse.content);
+
+        finalData = parsedData as aiProductData;
+      } catch (error) {
+        console.log(`[crawl-ts] - Failed to parse AI response`);
+        return;
+      }
+
+      console.log(`Parsed AI Data: ${JSON.stringify(finalData)}`);
+
+      // OK now we do the same thing as before. create product, save it, if exists, update it.
+
+      let existingProduct = await products.findOne({
+        url: finalData.url,
+      });
+      const user = await User.findById(userSession);
+
+      if (!user) {
+        console.error("Error: User not found");
+        return;
+      }
+
+      if (!existingProduct) {
+        console.log(" [crawl.ts:/bb: New product...saving to database");
+
+        finalData.salePrice = finalData.regularPrice;
+        finalData.url = url;
+        finalData.priceDateHistory = [
+          {
+            Number: finalData.regularPrice,
+            Date: new Date(),
+          },
+        ];
+
+        const newProduct = await products.create(finalData);
+
+        if (newProduct && newProduct._id) {
+          user.products.push({
+            product: newProduct._id,
+            wantedPrice: 0,
+          });
+          await user.save();
+          existingProduct = newProduct;
+        } else {
+          console.log("[crawl.ts:/bb: Error: Failed to create new product");
+          return;
+        }
+      } else {
+        console.log(
+          "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
+        );
+        // Add the existing product to the user's tracked products
+        if (
+          !user.products.some(
+            (item) =>
+              item.product.toString() === existingProduct?._id.toString()
+          )
+        ) {
+          user.products.push({
+            product: existingProduct._id,
+            wantedPrice: 0,
+          });
+          await user.save();
+        } else {
+          console.log(
+            "[crawl.ts:/bb: Product already exists in the user's tracked list."
+          );
+        }
+
+        // Update price history if needed
+        const lastPriceEntry =
+          existingProduct.priceDateHistory[
+            existingProduct.priceDateHistory.length - 1
+          ];
+        const today = new Date().toISOString().split("T")[0];
+        const lastEntryDate = lastPriceEntry?.Date
+          ? new Date(lastPriceEntry.Date).toISOString().split("T")[0]
+          : null;
+
+        console.log("[crawl.ts:/bb: Check if price update needed...");
+
+        if (
+          lastEntryDate !== today ||
+          lastPriceEntry?.Number !== finalData.regularPrice
+        ) {
+          console.log(
+            "[crawl.ts:/bb: Existing product: updating price since unequal date"
+          );
+
+          await products.updateOne(
+            { sku: existingProduct.sku },
+            {
+              $push: {
+                priceDateHistory: {
+                  Number: finalData.regularPrice,
+                  Date: new Date(),
+                },
+              },
+              $set: {
+                regularPrice: finalData.regularPrice,
+              },
+            }
+          );
+        } else {
+          console.log(
+            "[crawl.ts:/bb: No update needed: Price and date are the same."
+          );
+        }
+      }
+    }
   }
 });
 
@@ -492,6 +629,24 @@ async function parseBestBuyDataForMongoDB(scrapedData: { [key: string]: any }) {
     regularPrice: scrapedData.regularPrice,
     salePrice: scrapedData.priceWithoutEhf,
     images: scrapedData.additionalImages,
+    brandName: scrapedData.brandName,
+    longDescription: scrapedData.longDescription,
+    url: scrapedData.url,
+    priceDateHistory: scrapedData.priceDateHistory,
+  };
+
+  return finalData;
+}
+
+async function parseAIDataForMongoDB(scrapedData: { [key: string]: any }) {
+  const finalData = {
+    sku: scrapedData.sku,
+    name: scrapedData.name,
+    customerRating: scrapedData.customerRating,
+    customerRatingCount: scrapedData.customerRatingCount,
+    regularPrice: scrapedData.regularPrice,
+    salePrice: scrapedData.salePrice,
+    images: scrapedData.images,
     brandName: scrapedData.brandName,
     longDescription: scrapedData.longDescription,
     url: scrapedData.url,

@@ -1,6 +1,11 @@
 import { log } from "node:console";
+import { OpenAI } from "openai";
 import random_user_agent from "../scrapes/agents";
 import axios from "axios";
+import puppeteer from "puppeteer";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 interface sephoraSkuData {
   productId: string;
@@ -20,6 +25,24 @@ interface sephoraSkuData {
   };
 }
 
+const defaultHeaders = {
+  "User-Agent": random_user_agent(),
+  "Accept-Language": "en-US,en;q=0.9",
+  Accept: "*/*",
+  "Accept-Encoding": "gzip, deflate, br",
+  Connection: "keep-alive",
+};
+
+// Universal scrape will have uniform interface that I'll dictate to the AI API
+
+interface universalProduct {
+  productSku: string;
+  productName: string;
+  listPrice: number;
+  description: string;
+  imageURLs: Array<{ imageURl: string }>;
+}
+
 async function sephoraParseProductDetails(
   url: string
 ): Promise<sephoraSkuData | null> {
@@ -28,14 +51,6 @@ async function sephoraParseProductDetails(
   // https://www.sephora.com/ca/en/product/P506548 <- productID only
   // https://www.sephora.com/ca/en/product/P506548?skuId=2666998 <- productID and skuID
   // So it can either have only the productID, or the productID and the skuID.
-
-  const defaultHeaders = {
-    "User-Agent": random_user_agent(),
-    "Accept-Language": "en-US,en;q=0.9",
-    Accept: "*/*",
-    "Accept-Encoding": "gzip, deflate, br",
-    Connection: "keep-alive",
-  };
 
   console.log(`URL: ${url}`);
 
@@ -92,6 +107,82 @@ async function sephoraParseProductDetails(
   return null;
 }
 
+async function universalScrapeJS(url: string) {
+  try {
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+
+    await page.goto(url, { waitUntil: "networkidle2" });
+
+    const rawLd = await page.$$eval(
+      'script[type="application/ld+json"]',
+      (nodes) => nodes.map((n) => n.textContent)
+    );
+
+    console.log(rawLd);
+
+    const bodyHTML = rawLd
+      .map((txt) => JSON.parse(txt!))
+      .filter((o) => o && o["@type"] === "Product");
+
+    await browser.close();
+
+    // Convert html because right now it's [{...data}]
+    let productData = bodyHTML[0];
+    let productJsonString = JSON.stringify(productData);
+
+    return productJsonString;
+  } catch (error) {
+    console.log(`[parsers.ts] - Error getting universal scrape ${error}`);
+  }
+}
+
+async function finalizeWithAi(data: string) {
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+  console.log(`Requesting from OpenAI...`);
+
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4",
+    messages: [
+      {
+        role: "system",
+        content:
+          "You are a helpful assistant that converts product information into a specific MongoDB schema. Only return the final JSON because the content will be used directly in code, in JSON.parse function.",
+      },
+      {
+        role: "user",
+        content: `Here is the product info scraped from a website: ${data}
+        
+        Transform it into this schema (MongoDB-ready) in JSON format only.
+        If fields are missing, use null. Regular price is the price it's being listed right now.
+        Only return the JSON  response without any other messages.
+
+{
+  sku: string,
+  name: string,
+  customerRating: number | null,
+  customerRatingCount: number | null,
+  regularPrice: number,
+  images: [string],
+  brandName: string,
+  longDescription: string,
+  url: string,
+}
+
+        `,
+      },
+    ],
+    temperature: 0.2,
+  });
+
+  let finalProductData = completion.choices[0].message;
+
+  console.log(finalProductData);
+
+  return finalProductData;
+}
+
 function stringToNumber(str: string) {
   // $16.00
   let splitString = str.split("$");
@@ -99,9 +190,4 @@ function stringToNumber(str: string) {
   return result;
 }
 
-//  TODO delete after
-// sephoraParseProductDetails(
-//   "https://www.sephora.com/ca/en/product/satin-hydrating-lipstick-P501496?skuId=2564474&icid2=products%20grid:p501496:product"
-// );
-
-export { sephoraParseProductDetails };
+export { sephoraParseProductDetails, universalScrapeJS, finalizeWithAi };
