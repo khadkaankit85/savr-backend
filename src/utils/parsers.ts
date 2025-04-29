@@ -118,6 +118,9 @@ async function universalScrapeJS(url: string) {
       'script[type="application/ld+json"]',
       (nodes) => nodes.map((n) => n.textContent)
     );
+
+    console.log(rawLd);
+
     const bodyHTML = rawLd
       .map((txt) => JSON.parse(txt!))
       .filter((o) => o && o["@type"] === "Product");
@@ -145,13 +148,15 @@ async function finalizeWithAi(data: string) {
       {
         role: "system",
         content:
-          "You are a helpful assistant that converts product information into a specific MongoDB schema. Only return the final JSON.",
+          "You are a helpful assistant that converts product information into a specific MongoDB schema. Only return the final JSON because the content will be used directly in code, in JSON.parse function.",
       },
       {
         role: "user",
         content: `Here is the product info scraped from a website: ${data}
         
-        Transform it into this schema (MongoDB-ready). If fields are missing, use null. Regular price is the price it's being listed right now.
+        Transform it into this schema (MongoDB-ready) in JSON format only.
+        If fields are missing, use null. Regular price is the price it's being listed right now.
+        Only return the JSON  response without any other messages.
 
 {
   sku: string,
@@ -172,6 +177,8 @@ async function finalizeWithAi(data: string) {
   });
 
   let finalProductData = completion.choices[0].message;
+
+  console.log(finalProductData);
 
   return finalProductData;
 }

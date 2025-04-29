@@ -418,7 +418,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
 
         finalData = parsedData as aiProductData;
       } catch (error) {
-        console.log(`[crawl-ts] - Failed ot parse AI response`);
+        console.log(`[crawl-ts] - Failed to parse AI response`);
         return;
       }
 
