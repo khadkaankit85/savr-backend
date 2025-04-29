@@ -41,3 +41,6 @@ http
 
 output.json
 tokens.txt
+
+# Puppeteer cache
+.cache

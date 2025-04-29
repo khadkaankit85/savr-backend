@@ -9,9 +9,7 @@
     "build": "tsc",
     "start": "node dist/src/index.js",
     "debug": "tsx --inspect ./src/index.ts",
-    "d": "npx node-debug index.js",
-    "heroku-postbuild": "mkdir ./.cache && mv /savr-backend/.cache/puppeteer ./.cache"
-
+    "d": "npx node-debug index.js"
   },
   "repository": {
     "type": "git",
