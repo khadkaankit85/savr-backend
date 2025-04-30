@@ -30,7 +30,7 @@ const backend_url =
     ? process.env.BACKEND_URL
     : process.env.LOCAL_BACKEND_URL;
 console.log(
-  `Environment is: ${environment}, setting backend url to:  ${backend_url}, database as ${db_url}`,
+  `Environment is: ${environment}, setting backend url to:  ${backend_url}, database as ${db_url}`
 );
 
 async function updateProducts() {
@@ -56,7 +56,7 @@ async function updateProducts() {
 
       if (product.priceDateHistory.length === 0) {
         log(
-          `[priceUpdate worker] - No price history available for ${product.url}`,
+          `[priceUpdate worker] - No price history available for ${product.url}`
         );
         continue;
       }
@@ -67,13 +67,13 @@ async function updateProducts() {
 
       if (!latestProductDetails.Date) {
         log(
-          `[priceUpdate worker] - Missing date entry for the latest entry of ${product.url}`,
+          `[priceUpdate worker] - Missing date entry for the latest entry of ${product.url}`
         );
         continue;
       } else {
         log(
           `[priceUpdate worker] - Latest date for ${product.url}: `,
-          latestProductDetails.Date,
+          latestProductDetails.Date
         );
       }
 
@@ -82,27 +82,27 @@ async function updateProducts() {
         continue;
       } else {
         console.log(
-          `[priceUpdate worker] - Product date is not today...updating product:`,
+          `[priceUpdate worker] - Product date is not today...updating product:`
         );
         // this is where I scrape the product again, then push the date.
 
         try {
           const response = await axios.get(
-            `${backend_url}/api/crawl/updater?url=${productUrl}`,
+            `${backend_url}/api/crawl/BB?url=${productUrl}`,
             {
               headers: {
                 Authorization: `Bearer ${process.env.SCRAPER_API_TOKEN}`,
               },
-            },
+            }
           );
           console.log(
             `[priceUpdate worker] - Product successfully updated: `,
-            JSON.stringify(response.data, null, 2),
+            JSON.stringify(response.data, null, 2)
           );
         } catch (error) {
           console.error(
             "[priceUpdate worker] - Unable to update product date",
-            error,
+            error
           );
         }
       }
@@ -110,7 +110,7 @@ async function updateProducts() {
   } catch (error) {
     console.error(
       "[priceUpdate worker] - Error connecting to MongodB: ",
-      error,
+      error
     );
   } finally {
     if (mongoose.connection.readyState !== 0) {
@@ -135,3 +135,4 @@ function dateIsToday(d1: Date): boolean {
 }
 
 updateProducts();
+console.log(`Proudct update for ${new Date()} finished`);

@@ -12,4 +12,5 @@ and if the state of the account remains unverified for a fixed amount of time (e
 
 
 # For Matt
-1. Merge feat/sephora first and then feat/universalScrape
+Should add a fail counter on each product, if it fails maybe 3x consistently, can assume the link is now broken, product unavailable and should just
+take it out of the DB to save on requests
