@@ -762,5 +762,7 @@ function normalizeUrl(urlString: string): string {
   }
 }
 
+//TODO [ ] /sephora /updater should be deprecated, all should be using /BB once it's properly implemented.
+
 // ... rest of the file ...
 export default router;
