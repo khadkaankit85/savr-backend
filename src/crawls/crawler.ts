@@ -5,6 +5,12 @@ import fs, { write } from "fs";
 import cheerio from "cheerio";
 import { JSDOM } from "jsdom";
 import puppeteer from "puppeteer-core";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const chromePath = process.env.CHROME_PATH;
+console.log(`CHROME_PATH: `, chromePath);
 
 const defaultHeaders = {
   "User-Agent": random_user_agent(),
@@ -38,9 +44,22 @@ export async function getRawHTML(URL: string): Promise<string> {
  */
 export async function getPuppetRawHTML(URL: string): Promise<string> {
   log("Launching puppet");
-  const browser = await puppeteer.launch({
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
+
+  let browser;
+
+  console.log(`env: ${process.env.ENVIRONMENT}`);
+
+  if (process.env.ENVIRONMENT == "dev") {
+    browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      executablePath: chromePath,
+    });
+  } else {
+    browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+  }
+
   log("Puppet: opening page...");
   const page = await browser.newPage();
 
@@ -118,7 +137,7 @@ export function getBestBuyScriptTagOnly(html: string): string | null {
 
           // Find the product object that contains "ehf"
           const productWithEHF = productMatches.find((match) =>
-            match[0].includes('"ehf"'),
+            match[0].includes('"ehf"')
           );
 
           // If found, return it

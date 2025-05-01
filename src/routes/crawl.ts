@@ -140,6 +140,9 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
   let urlType: string = "";
   const apiToken = req.headers["authorization"];
   const userSession = req.session.user?.id;
+
+  console.log(`apiToken = ${apiToken}`);
+
   // Authorization check
   if (apiToken !== `Bearer ${process.env.SCRAPER_API_TOKEN}`) {
     if (!userSession) {
@@ -185,12 +188,12 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         });
         const user = await User.findById(userSession);
 
-        if (!user) {
-          console.error("Error: User not found");
+        if (!user && !apiToken) {
+          console.error("Error: User or ApiToken not found");
           return;
         }
 
-        if (!existingProduct) {
+        if (!existingProduct && user) {
           console.log(" [crawl.ts:/bb: New product...saving to database");
 
           finalData.product.url = url;
@@ -219,65 +222,67 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
             return;
           }
         } else {
-          console.log(
-            "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
-          );
-          // Add the existing product to the user's tracked products
-          if (
-            !user.products.some(
-              (item) =>
-                item.product.toString() === existingProduct?._id.toString()
-            )
-          ) {
-            user.products.push({
-              product: existingProduct._id,
-              wantedPrice: 0,
-            });
-            await user.save();
+          if (user) {
+            console.log(
+              "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
+            );
+            // Add the existing product to the user's tracked products
+            if (
+              !user.products.some(
+                (item) =>
+                  item.product.toString() === existingProduct!._id.toString()
+              )
+            ) {
+              user.products.push({
+                product: existingProduct!._id,
+                wantedPrice: 0,
+              });
+              await user.save();
+            } else {
+              console.log(
+                "[crawl.ts:/bb: Product already exists in the user's tracked list."
+              );
+            }
           } else {
-            console.log(
-              "[crawl.ts:/bb: Product already exists in the user's tracked list."
-            );
-          }
+            // Update price history if needed
+            const lastPriceEntry =
+              existingProduct!.priceDateHistory[
+                existingProduct!.priceDateHistory.length - 1
+              ];
+            const today = new Date().toISOString().split("T")[0];
+            const lastEntryDate = lastPriceEntry?.Date
+              ? new Date(lastPriceEntry.Date).toISOString().split("T")[0]
+              : null;
 
-          // Update price history if needed
-          const lastPriceEntry =
-            existingProduct.priceDateHistory[
-              existingProduct.priceDateHistory.length - 1
-            ];
-          const today = new Date().toISOString().split("T")[0];
-          const lastEntryDate = lastPriceEntry?.Date
-            ? new Date(lastPriceEntry.Date).toISOString().split("T")[0]
-            : null;
+            console.log("[crawl.ts:/bb: Check if price update needed...");
 
-          console.log("[crawl.ts:/bb: Check if price update needed...");
+            if (
+              lastEntryDate !== today ||
+              lastPriceEntry?.Number !== finalData.product.regularPrice
+            ) {
+              console.log(
+                "[crawl.ts:/bb: Existing product: updating price since unequal date"
+              );
 
-          if (
-            lastEntryDate !== today ||
-            lastPriceEntry?.Number !== finalData.product.regularPrice
-          ) {
-            console.log(
-              "[crawl.ts:/bb: Existing product: updating price since unequal date"
-            );
-
-            await products.updateOne(
-              { sku: existingProduct.sku },
-              {
-                $push: {
-                  priceDateHistory: {
-                    Number: finalData.product.regularPrice,
-                    Date: new Date(),
+              await products.updateOne(
+                { sku: existingProduct!.sku },
+                {
+                  $push: {
+                    priceDateHistory: {
+                      Number: finalData.product.regularPrice,
+                      Date: new Date(),
+                    },
                   },
-                },
-                $set: {
-                  regularPrice: finalData.product.regularPrice,
-                },
-              }
-            );
-          } else {
-            console.log(
-              "[crawl.ts:/bb: No update needed: Price and date are the same."
-            );
+                  $set: {
+                    regularPrice: finalData.product.regularPrice,
+                  },
+                }
+              );
+            } else {
+              console.log(
+                "[crawl.ts:/bb: No update needed: Price and date are the same."
+              );
+            }
           }
         }
         res.status(200).json({ product: existingProduct });
@@ -288,8 +293,8 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
       }
     }
     case "sephora": {
-      // save to the shape of the productSchema // [x] Get the specific sku to choose since it will return a bunch of other skus // [x] Do axios get for the url
       let sephoraRawData = await sephoraParseProductDetails(url);
+
       const finalData: productSchema = {
         sku: sephoraRawData?.currentSku.skuId || "",
         name: sephoraRawData?.heroImageAltText || "",
@@ -316,12 +321,14 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
       });
       const user = await User.findById(userSession);
 
-      if (!user) {
-        console.error("Error: User not found");
+      if (!user && !apiToken) {
+        res
+          .status(500)
+          .json({ message: `User not found, not apiToken found.` });
         return;
       }
 
-      if (!existingProduct) {
+      if (!existingProduct && user) {
         const newProduct = await products.create(finalData);
 
         if (newProduct && newProduct._id) {
@@ -333,80 +340,119 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
           existingProduct = newProduct;
         }
       } else {
-        console.log(
-          "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
-        );
-        // Add the existing product to the user's tracked products
-        if (
-          !user.products.some(
-            (item) =>
-              item.product.toString() === existingProduct?._id.toString()
-          )
-        ) {
-          user.products.push({
-            product: existingProduct._id,
-            wantedPrice: 0,
-          });
-          await user.save();
+        if (user) {
+          console.log(
+            "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
+          );
+          // Add the existing product to the user's tracked products
+          if (
+            !user.products.some(
+              (item) =>
+                item.product.toString() === existingProduct?._id.toString()
+            )
+          ) {
+            user.products.push({
+              product: existingProduct!._id,
+              wantedPrice: 0,
+            });
+            await user.save();
+          } else {
+            console.log(
+              "[crawl.ts:/bb: Product already exists in the user's tracked list."
+            );
+          }
         } else {
-          console.log(
-            "[crawl.ts:/bb: Product already exists in the user's tracked list."
-          );
-        }
+          // Update price history if needed
+          const lastPriceEntry =
+            existingProduct!.priceDateHistory[
+              existingProduct!.priceDateHistory.length - 1
+            ];
+          const today = new Date().toISOString().split("T")[0];
+          const lastEntryDate = lastPriceEntry?.Date
+            ? new Date(lastPriceEntry.Date).toISOString().split("T")[0]
+            : null;
 
-        // Update price history if needed
-        const lastPriceEntry =
-          existingProduct.priceDateHistory[
-            existingProduct.priceDateHistory.length - 1
-          ];
-        const today = new Date().toISOString().split("T")[0];
-        const lastEntryDate = lastPriceEntry?.Date
-          ? new Date(lastPriceEntry.Date).toISOString().split("T")[0]
-          : null;
+          console.log("[crawl.ts:/bb: Check if price update needed...");
 
-        console.log("[crawl.ts:/bb: Check if price update needed...");
+          if (
+            lastEntryDate !== today ||
+            lastPriceEntry?.Number !== finalData.regularPrice
+          ) {
+            console.log(
+              "[crawl.ts:/bb: Existing product: updating price since unequal date"
+            );
 
-        if (
-          lastEntryDate !== today ||
-          lastPriceEntry?.Number !== finalData.regularPrice
-        ) {
-          console.log(
-            "[crawl.ts:/bb: Existing product: updating price since unequal date"
-          );
-
-          await products.updateOne(
-            { sku: existingProduct.sku },
-            {
-              $push: {
-                priceDateHistory: {
-                  Number: finalData.regularPrice,
-                  Date: new Date(),
+            await products.updateOne(
+              { sku: existingProduct!.sku },
+              {
+                $push: {
+                  priceDateHistory: {
+                    Number: finalData.regularPrice,
+                    Date: new Date(),
+                  },
                 },
-              },
-              $set: {
-                regularPrice: finalData.regularPrice,
-              },
-            }
-          );
-        } else {
-          console.log(
-            "[crawl.ts:/bb: No update needed: Price and date are the same."
-          );
+                $set: {
+                  regularPrice: finalData.regularPrice,
+                },
+              }
+            );
+          } else {
+            console.log(
+              "[crawl.ts:/bb: No update needed: Price and date are the same."
+            );
+          }
         }
       }
+      res.status(200).json({ product: existingProduct });
+      return;
     }
     case "other": {
-      let rawData = await universalScrapeJS(url);
+      let rawData;
+      try {
+        rawData = await universalScrapeJS(url);
+      } catch (scrapeError: any) {
+        console.error(
+          `[crawl.ts] - Error during universalScrapeJS for ${url}:`,
+          scrapeError.message
+        );
+        // Send an error response back to the caller (productUpdate.ts)
+        res.status(500).json({
+          message: `Scraping failed for ${url}`,
+          error: scrapeError.message,
+        });
+        return; // Stop processing this case
+      }
 
       if (!rawData) {
         console.log("[crawl.ts] - No raw data returned from universalScrapeJS");
+        res
+          .status(404)
+          .json({ message: `No data could be scraped for ${url}` }); // Use 404 or 500 as appropriate
+
         return; // Exit the case if rawData is null or undefined
       }
 
-      let aiDataResponse = await finalizeWithAi(rawData);
+      let aiDataResponse;
+      try {
+        aiDataResponse = await finalizeWithAi(rawData);
+      } catch (aiError: any) {
+        console.error(
+          `[crawl.ts] - Error during finalizeWithAi for ${url}:`,
+          aiError.message
+        );
+        res.status(500).json({
+          message: `AI processing failed for ${url}`,
+          error: aiError.message,
+        });
+        return;
+      }
 
       if (!aiDataResponse?.content) {
         console.log("[crawl.ts] - finalizeWithAi returned null");
+        res
+          .status(500)
+          .json({ message: `AI processing returned no content for ${url}` });
+
         return; // Exit the case if AI response is null
       }
 
@@ -415,10 +461,16 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
 
       try {
         const parsedData = JSON.parse(aiDataResponse.content);
-
         finalData = parsedData as aiProductData;
-      } catch (error) {
-        console.log(`[crawl-ts] - Failed to parse AI response`);
+      } catch (error: any) {
+        console.log(
+          `[crawl-ts] - Failed to parse AI response for ${url}: ${error.message}`
+        );
+        // Send an error response back
+        res.status(500).json({
+          message: `Failed to parse AI response for ${url}`,
+          error: error.message,
+        });
         return;
       }
 
@@ -426,18 +478,22 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
 
       // OK now we do the same thing as before. create product, save it, if exists, update it.
 
+      // const normalizedUrl = normalizeUrl(finalData.url);
+
       let existingProduct = await products.findOne({
-        url: finalData.url,
+        url: url,
       });
       const user = await User.findById(userSession);
 
-      if (!user) {
+      if (!user && !apiToken) {
         console.error("Error: User not found");
         return;
       }
 
-      if (!existingProduct) {
+      if (!existingProduct && user) {
         console.log(" [crawl.ts:/bb: New product...saving to database");
+
+        // const normalizedSaveURl = normalizeUrl(finalData.url);
 
         finalData.salePrice = finalData.regularPrice;
         finalData.url = url;
@@ -462,67 +518,72 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
           return;
         }
       } else {
-        console.log(
-          "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
-        );
-        // Add the existing product to the user's tracked products
-        if (
-          !user.products.some(
-            (item) =>
-              item.product.toString() === existingProduct?._id.toString()
-          )
-        ) {
-          user.products.push({
-            product: existingProduct._id,
-            wantedPrice: 0,
-          });
-          await user.save();
+        if (user) {
+          console.log(
+            "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
+          );
+          // Add the existing product to the user's tracked products
+          if (
+            !user.products.some(
+              (item) =>
+                item.product.toString() === existingProduct?._id.toString()
+            )
+          ) {
+            user.products.push({
+              product: existingProduct!._id,
+              wantedPrice: 0,
+            });
+            await user.save();
+          } else {
+            console.log(
+              "[crawl.ts:/bb: Product already exists in the user's tracked list."
+            );
+          }
         } else {
-          console.log(
-            "[crawl.ts:/bb: Product already exists in the user's tracked list."
-          );
-        }
+          // Update price history if needed
+          const lastPriceEntry =
+            existingProduct!.priceDateHistory[
+              existingProduct!.priceDateHistory.length - 1
+            ];
+          const today = new Date().toISOString().split("T")[0];
+          const lastEntryDate = lastPriceEntry?.Date
+            ? new Date(lastPriceEntry.Date).toISOString().split("T")[0]
+            : null;
 
-        // Update price history if needed
-        const lastPriceEntry =
-          existingProduct.priceDateHistory[
-            existingProduct.priceDateHistory.length - 1
-          ];
-        const today = new Date().toISOString().split("T")[0];
-        const lastEntryDate = lastPriceEntry?.Date
-          ? new Date(lastPriceEntry.Date).toISOString().split("T")[0]
-          : null;
+          console.log("[crawl.ts:/bb: Check if price update needed...");
 
-        console.log("[crawl.ts:/bb: Check if price update needed...");
+          if (
+            lastEntryDate !== today ||
+            lastPriceEntry?.Number !== finalData.regularPrice
+          ) {
+            console.log(
+              "[crawl.ts:/bb: Existing product: updating price since unequal date"
+            );
 
-        if (
-          lastEntryDate !== today ||
-          lastPriceEntry?.Number !== finalData.regularPrice
-        ) {
-          console.log(
-            "[crawl.ts:/bb: Existing product: updating price since unequal date"
-          );
-
-          await products.updateOne(
-            { sku: existingProduct.sku },
-            {
-              $push: {
-                priceDateHistory: {
-                  Number: finalData.regularPrice,
-                  Date: new Date(),
+            await products.updateOne(
+              { sku: existingProduct!.sku },
+              {
+                $push: {
+                  priceDateHistory: {
+                    Number: finalData.regularPrice,
+                    Date: new Date(),
+                  },
                 },
-              },
-              $set: {
-                regularPrice: finalData.regularPrice,
-              },
-            }
-          );
-        } else {
-          console.log(
-            "[crawl.ts:/bb: No update needed: Price and date are the same."
-          );
+                $set: {
+                  regularPrice: finalData.regularPrice,
+                },
+              }
+            );
+          } else {
+            console.log(
+              "[crawl.ts:/bb: No update needed: Price and date are the same."
+            );
+          }
         }
       }
+      console.log(`[crawl.ts] - Successfully processed 'other' URL: ${url}`);
+      res.status(200).json({ product: existingProduct });
+      return;
     }
   }
 });
@@ -543,6 +604,8 @@ router.get("/updater", async (req: Request, res: Response): Promise<void> => {
     res.status(400).json({ message: "URL is required" });
     return;
   }
+
+  // [ ] Change this to a switch case for BB, sephora, etc.
 
   try {
     // Fetch and process HTML
@@ -656,4 +719,48 @@ async function parseAIDataForMongoDB(scrapedData: { [key: string]: any }) {
   return finalData;
 }
 
+// ... existing code ...
+
+function normalizeUrl(urlString: string): string {
+  try {
+    const urlObj = new URL(urlString);
+
+    // 1. Remove the specific Canadian Tire pattern (.digits.html)
+    // This regex looks for '.html' preceded by a dot and one or more digits, at the end of the pathname
+    const ctPattern = /\. \d + \.html$/;
+    if (
+      urlObj.hostname.includes("canadiantire.ca") &&
+      ctPattern.test(urlObj.pathname)
+    ) {
+      // Replace '.<digits>.html' with just '.html'
+      urlObj.pathname = urlObj.pathname.replace(ctPattern, ".html");
+    }
+
+    // 2. Remove trailing slash from pathname if it exists and pathname is not just '/'
+    if (urlObj.pathname.length > 1 && urlObj.pathname.endsWith("/")) {
+      urlObj.pathname = urlObj.pathname.slice(0, -1);
+    }
+
+    return urlObj.toString();
+  } catch (e) {
+    // Handle invalid URLs if necessary, or just return original
+    console.warn(`Could not normalize URL: ${urlString}`, e);
+
+    // Basic fallback: Apply regex and trailing slash removal manually
+    let normalizedString = urlString;
+    const ctPattern = /\. \d + \.html$/;
+    if (
+      normalizedString.includes("canadiantire.ca") &&
+      ctPattern.test(normalizedString)
+    ) {
+      normalizedString = normalizedString.replace(ctPattern, ".html");
+    }
+    normalizedString = normalizedString.endsWith("/")
+      ? normalizedString.slice(0, -1)
+      : normalizedString;
+    return normalizedString;
+  }
+}
+
+// ... rest of the file ...
 export default router;
