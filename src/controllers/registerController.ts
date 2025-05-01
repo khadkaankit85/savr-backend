@@ -10,11 +10,17 @@ import { appConfigs } from "../configs/appconfigs";
 
 const registerWithEmailAndPassword = async (req: Request, res: Response) => {
   const user = registerSchema.safeParse(req.body);
+  if (!user.success) {
+    const fieldErrors = user.error.errors.reduce(
+      (acc, curr) => {
+        const field = curr.path[0];
+        acc[field] = curr.message;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
 
-  //if invalid data, then send 401
-  if (user.error) {
-    res.status(401).json({ error: user.error.message });
-    return;
+    return res.status(400).json({ errors: fieldErrors });
   }
 
   //if valid data
