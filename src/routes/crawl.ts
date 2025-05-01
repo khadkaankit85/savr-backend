@@ -294,6 +294,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
     }
     case "sephora": {
       let sephoraRawData = await sephoraParseProductDetails(url);
+
       const finalData: productSchema = {
         sku: sephoraRawData?.currentSku.skuId || "",
         name: sephoraRawData?.heroImageAltText || "",
@@ -321,7 +322,9 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
       const user = await User.findById(userSession);
 
       if (!user && !apiToken) {
-        console.error("Error: User not found");
+        res
+          .status(500)
+          .json({ message: `User not found, not apiToken found.` });
         return;
       }
 
@@ -400,6 +403,8 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
           }
         }
       }
+      res.status(200).json({ product: existingProduct });
+      return;
     }
     case "other": {
       let rawData;
