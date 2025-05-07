@@ -157,7 +157,7 @@ async function finalizeWithAi(data: string) {
   console.log(`Requesting from OpenAI...`);
 
   const completion = await openai.chat.completions.create({
-    model: "gpt-4",
+    model: "gpt-4o-mini",
     messages: [
       {
         role: "system",
