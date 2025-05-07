@@ -290,10 +290,16 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
       } catch (error) {
         console.log("[crawl.ts:/bb: Error fetching data:", error);
         res.status(500).json({ message: "Error fetching data" });
+        return;
       }
     }
     case "sephora": {
       let sephoraRawData = await sephoraParseProductDetails(url);
+
+      if (sephoraRawData == null) {
+        res.status(500).json({ message: "sephora raw data returned null" });
+        return;
+      }
 
       const finalData: productSchema = {
         sku: sephoraRawData?.currentSku.skuId || "",

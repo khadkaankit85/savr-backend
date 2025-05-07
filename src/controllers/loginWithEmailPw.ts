@@ -6,16 +6,14 @@ import User from "../schema/userSchema";
 const loginWithEmailAndPassword = async (req: Request, res: Response) => {
   const user = registerSchema.safeParse(req.body);
   if (!user.success) {
-    const fieldErrors = user.error.errors.reduce(
-      (acc, curr) => {
-        const field = curr.path[0];
-        acc[field] = curr.message;
-        return acc;
-      },
-      {} as Record<string, string>,
-    );
+    const fieldErrors = user.error.errors.reduce((acc, curr) => {
+      const field = curr.path[0];
+      acc[field] = curr.message;
+      return acc;
+    }, {} as Record<string, string>);
 
-    return res.status(401).json({ errors: fieldErrors });
+    res.status(401).json({ errors: fieldErrors });
+    return;
   }
 
   try {
@@ -28,7 +26,7 @@ const loginWithEmailAndPassword = async (req: Request, res: Response) => {
 
     const isPasswordValid = await bcrypt.compare(
       user.data.password,
-      existingUser.password,
+      existingUser.password
     );
 
     if (!isPasswordValid) {

@@ -11,16 +11,14 @@ import { appConfigs } from "../configs/appconfigs";
 const registerWithEmailAndPassword = async (req: Request, res: Response) => {
   const user = registerSchema.safeParse(req.body);
   if (!user.success) {
-    const fieldErrors = user.error.errors.reduce(
-      (acc, curr) => {
-        const field = curr.path[0];
-        acc[field] = curr.message;
-        return acc;
-      },
-      {} as Record<string, string>,
-    );
+    const fieldErrors = user.error.errors.reduce((acc, curr) => {
+      const field = curr.path[0];
+      acc[field] = curr.message;
+      return acc;
+    }, {} as Record<string, string>);
 
-    return res.status(400).json({ errors: fieldErrors });
+    res.status(400).json({ errors: fieldErrors });
+    return;
   }
 
   //if valid data
@@ -80,7 +78,7 @@ const registerWithEmailAndPassword = async (req: Request, res: Response) => {
           const emailSent = sendEmail(
             user.data.email,
             "Savr Account Verification",
-            getAccountVerificationEmailText(url),
+            getAccountVerificationEmailText(url)
           );
           console.log("email sent to ", user.data.email, await emailSent);
         } catch (e) {
