@@ -6,11 +6,9 @@ import cheerio from "cheerio";
 import { JSDOM } from "jsdom";
 import puppeteer from "puppeteer-core";
 import dotenv from "dotenv";
+import { appConfigs } from "../configs/appconfigs";
 
 dotenv.config();
-
-const chromePath = process.env.CHROME_PATH;
-console.log(`CHROME_PATH: `, chromePath);
 
 const defaultHeaders = {
   "User-Agent": random_user_agent(),
@@ -47,12 +45,10 @@ export async function getPuppetRawHTML(URL: string): Promise<string> {
 
   let browser;
 
-  console.log(`env: ${process.env.ENVIRONMENT}`);
-
-  if (process.env.ENVIRONMENT == "dev") {
+  if (appConfigs.environment == "dev") {
     browser = await puppeteer.launch({
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      executablePath: chromePath,
+      executablePath: appConfigs.chromePathForDev,
     });
   } else {
     browser = await puppeteer.launch({
@@ -137,7 +133,7 @@ export function getBestBuyScriptTagOnly(html: string): string | null {
 
           // Find the product object that contains "ehf"
           const productWithEHF = productMatches.find((match) =>
-            match[0].includes('"ehf"')
+            match[0].includes('"ehf"'),
           );
 
           // If found, return it

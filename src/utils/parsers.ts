@@ -4,8 +4,7 @@ import random_user_agent from "../scrapes/agents";
 import axios from "axios";
 import puppeteer from "puppeteer-core";
 import dotenv from "dotenv";
-
-dotenv.config();
+import { appConfigs } from "../configs/appconfigs";
 
 interface sephoraSkuData {
   productId: string;
@@ -44,7 +43,7 @@ interface universalProduct {
 }
 
 async function sephoraParseProductDetails(
-  url: string
+  url: string,
 ): Promise<sephoraSkuData | null> {
   // https://www.sephora.com/api/v3/users/profiles/current/product/P393401
   // https://www.sephora.com/ca/en/product/nars-light-reflecting-advance-skincare-foundation-P479338?skuId=2514644&icid2=products%20grid:p479338:product
@@ -96,7 +95,7 @@ async function sephoraParseProductDetails(
     };
 
     finalData.currentSku.listPrice = stringToNumber(
-      finalData.currentSku.listPrice?.toString() || "$0.00"
+      finalData.currentSku.listPrice?.toString() || "$0.00",
     );
 
     // console.log(finalData);
@@ -111,10 +110,10 @@ async function universalScrapeJS(url: string) {
   try {
     let browser;
 
-    if (process.env.ENVIRONMENT == "dev") {
+    if (appConfigs.environment == "dev") {
       browser = await puppeteer.launch({
         args: ["--no-sandbox", "--disable-setuid-sandbox"],
-        executablePath: process.env.CHROME_PATH,
+        executablePath: appConfigs.chromePathForDev,
         headless: true,
       });
     } else {
@@ -131,7 +130,7 @@ async function universalScrapeJS(url: string) {
 
     const rawLd = await page.$$eval(
       'script[type="application/ld+json"]',
-      (nodes) => nodes.map((n) => n.textContent)
+      (nodes) => nodes.map((n) => n.textContent),
     );
 
     console.log(rawLd);
@@ -153,7 +152,7 @@ async function universalScrapeJS(url: string) {
 }
 
 async function finalizeWithAi(data: string) {
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const openai = new OpenAI({ apiKey: appConfigs.openAIAPIKey });
 
   console.log(`Requesting from OpenAI...`);
 

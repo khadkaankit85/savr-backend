@@ -16,6 +16,8 @@ const emailPassword = process.env.EMAIL_PASSWORD;
 //we rarely define port in .env file or environment variable as it is managed by hosting provider most of the time
 const port = process.env.PORT as number | undefined;
 const sessionSecret = process.env.SESSION_SECRET_TOKEN;
+const chromePathForDev = process.env.CHROME_PATH;
+const openAIAPIKey = process.env.OPENAI_API_KEY;
 
 //if compulsory envs are missing
 if (
@@ -23,7 +25,8 @@ if (
   !oauthClientSecret ||
   !emailThatSendsOtp ||
   !emailPassword ||
-  !sessionSecret
+  !sessionSecret ||
+  !openAIAPIKey
 ) {
   throw new Error(
     "please check for compulsory envs in your environment variable, check envsample for required envs",
@@ -55,6 +58,8 @@ type Config = {
   sessionSecret: string;
   environment: "dev" | "prod";
   backendUrl: string;
+  chromePathForDev?: string;
+  openAIAPIKey: string;
 };
 
 const constConfig = {
@@ -64,6 +69,7 @@ const constConfig = {
   emailPassword,
   sessionSecret,
   environment,
+  openAIAPIKey,
 };
 
 const prodConfig: Config = {
@@ -79,6 +85,7 @@ const devConfig: Config = {
   databaseUrl: "mongodb://localhost:27017/savr",
   backendUrl: "http://localhost:3000",
   port: port || 3000,
+  chromePathForDev,
   ...constConfig,
 };
 
@@ -105,4 +112,5 @@ if (environment !== "prod") {
   `;
 
   console.log(boxContent);
+  console.log("The path of your chrome for development is ", chromePathForDev);
 }
