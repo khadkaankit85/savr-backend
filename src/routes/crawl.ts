@@ -77,7 +77,7 @@ router.get(
     } catch (error) {
       res.status(400).send("Invalid URI format");
     }
-  },
+  }
 );
 
 router.get("/sephora", async (req: Request, res: Response): Promise<void> => {
@@ -205,7 +205,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
           ];
 
           const finalParsedData = await parseBestBuyDataForMongoDB(
-            finalData.product,
+            finalData.product
           );
 
           const newProduct = await products.create(finalParsedData);
@@ -224,13 +224,13 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         } else {
           if (user) {
             console.log(
-              "[crawl.ts:/bb: Existing product, adding to user but not saving to database.",
+              "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
             );
             // Add the existing product to the user's tracked products
             if (
               !user.products.some(
                 (item) =>
-                  item.product.toString() === existingProduct!._id.toString(),
+                  item.product.toString() === existingProduct!._id.toString()
               )
             ) {
               user.products.push({
@@ -240,7 +240,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
               await user.save();
             } else {
               console.log(
-                "[crawl.ts:/bb: Product already exists in the user's tracked list.",
+                "[crawl.ts:/bb: Product already exists in the user's tracked list."
               );
             }
           } else {
@@ -261,7 +261,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
               lastPriceEntry?.Number !== finalData.product.regularPrice
             ) {
               console.log(
-                "[crawl.ts:/bb: Existing product: updating price since unequal date",
+                "[crawl.ts:/bb: Existing product: updating price since unequal date"
               );
 
               await products.updateOne(
@@ -276,11 +276,11 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
                   $set: {
                     regularPrice: finalData.product.regularPrice,
                   },
-                },
+                }
               );
             } else {
               console.log(
-                "[crawl.ts:/bb: No update needed: Price and date are the same.",
+                "[crawl.ts:/bb: No update needed: Price and date are the same."
               );
             }
           }
@@ -348,13 +348,13 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
       } else {
         if (user) {
           console.log(
-            "[crawl.ts:/bb: Existing product, adding to user but not saving to database.",
+            "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
           );
           // Add the existing product to the user's tracked products
           if (
             !user.products.some(
               (item) =>
-                item.product.toString() === existingProduct?._id.toString(),
+                item.product.toString() === existingProduct?._id.toString()
             )
           ) {
             user.products.push({
@@ -364,7 +364,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
             await user.save();
           } else {
             console.log(
-              "[crawl.ts:/bb: Product already exists in the user's tracked list.",
+              "[crawl.ts:/bb: Product already exists in the user's tracked list."
             );
           }
         } else {
@@ -385,7 +385,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
             lastPriceEntry?.Number !== finalData.regularPrice
           ) {
             console.log(
-              "[crawl.ts:/bb: Existing product: updating price since unequal date",
+              "[crawl.ts:/bb: Existing product: updating price since unequal date"
             );
 
             await products.updateOne(
@@ -400,11 +400,11 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
                 $set: {
                   regularPrice: finalData.regularPrice,
                 },
-              },
+              }
             );
           } else {
             console.log(
-              "[crawl.ts:/bb: No update needed: Price and date are the same.",
+              "[crawl.ts:/bb: No update needed: Price and date are the same."
             );
           }
         }
@@ -419,7 +419,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
       } catch (scrapeError: any) {
         console.error(
           `[crawl.ts] - Error during universalScrapeJS for ${url}:`,
-          scrapeError.message,
+          scrapeError.message
         );
         // Send an error response back to the caller (productUpdate.ts)
         res.status(500).json({
@@ -442,7 +442,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
       } catch (aiError: any) {
         console.error(
           `[crawl.ts] - Error during finalizeWithAi for ${url}:`,
-          aiError.message,
+          aiError.message
         );
         res.status(500).json({
           message: `AI processing failed for ${url}`,
@@ -468,7 +468,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
         finalData = parsedData as aiProductData;
       } catch (error: any) {
         console.log(
-          `[crawl-ts] - Failed to parse AI response for ${url}: ${error.message}`,
+          `[crawl-ts] - Failed to parse AI response for ${url}: ${error.message}`
         );
         // Send an error response back
         res.status(500).json({
@@ -524,13 +524,13 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
       } else {
         if (user) {
           console.log(
-            "[crawl.ts:/bb: Existing product, adding to user but not saving to database.",
+            "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
           );
           // Add the existing product to the user's tracked products
           if (
             !user.products.some(
               (item) =>
-                item.product.toString() === existingProduct?._id.toString(),
+                item.product.toString() === existingProduct?._id.toString()
             )
           ) {
             user.products.push({
@@ -540,7 +540,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
             await user.save();
           } else {
             console.log(
-              "[crawl.ts:/bb: Product already exists in the user's tracked list.",
+              "[crawl.ts:/bb: Product already exists in the user's tracked list."
             );
           }
         } else {
@@ -561,7 +561,7 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
             lastPriceEntry?.Number !== finalData.regularPrice
           ) {
             console.log(
-              "[crawl.ts:/bb: Existing product: updating price since unequal date",
+              "[crawl.ts:/bb: Existing product: updating price since unequal date"
             );
 
             await products.updateOne(
@@ -576,11 +576,11 @@ router.get("/BB", async (req: Request, res: Response): Promise<void> => {
                 $set: {
                   regularPrice: finalData.regularPrice,
                 },
-              },
+              }
             );
           } else {
             console.log(
-              "[crawl.ts:/bb: No update needed: Price and date are the same.",
+              "[crawl.ts:/bb: No update needed: Price and date are the same."
             );
           }
         }
@@ -630,7 +630,7 @@ router.get("/updater", async (req: Request, res: Response): Promise<void> => {
     });
 
     console.log(
-      `[crawl.ts:/updater: Existing product check: ${existingProduct?.regularPrice} === ${finalData.product.url}`,
+      `[crawl.ts:/updater: Existing product check: ${existingProduct?.regularPrice} === ${finalData.product.url}`
     );
 
     if (!existingProduct) {
@@ -638,7 +638,7 @@ router.get("/updater", async (req: Request, res: Response): Promise<void> => {
       return;
     } else {
       console.log(
-        "crawl.ts:/updater: Existing product found. Checking for updates...",
+        "crawl.ts:/updater: Existing product found. Checking for updates..."
       );
     }
 
@@ -656,7 +656,7 @@ router.get("/updater", async (req: Request, res: Response): Promise<void> => {
         $set: {
           regularPrice: finalData.product.regularPrice,
         },
-      },
+      }
     );
     res
       .status(200)
@@ -775,6 +775,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
 
   console.log(`apiToken = ${apiToken}`);
   console.log(`[crawl.ts/bb] - SSE mode: ${useSSE}`);
+  console.log(`useSSE = ${useSSE}`);
 
   // Set up SSE if requested
   if (useSSE) {
@@ -793,6 +794,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
 
     // Initial connection confirmation
     sendUpdate("Connected to server");
+    console.log(`Sent connection approval`);
   }
 
   // Authorization check
@@ -801,7 +803,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
       if (useSSE) {
         res.write(`event: error\n`);
         res.write(
-          `data: ${JSON.stringify({ message: "Unauthorized user" })}\n\n`,
+          `data: ${JSON.stringify({ message: "Unauthorized user" })}\n\n`
         );
         res.end();
       } else {
@@ -827,7 +829,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
   if (useSSE) {
     res.write(`event: update\n`);
     res.write(
-      `data: ${JSON.stringify({ message: "Identifying URL type..." })}\n\n`,
+      `data: ${JSON.stringify({ message: "Identifying URL type..." })}\n\n`
     );
   }
 
@@ -839,7 +841,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
   if (useSSE) {
     res.write(`event: update\n`);
     res.write(
-      `data: ${JSON.stringify({ message: `URL identified as ${urlType}` })}\n\n`,
+      `data: ${JSON.stringify({ message: `URL identified as ${urlType}` })}\n\n`
     );
   }
 
@@ -851,7 +853,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
       if (useSSE) {
         res.write(`event: update\n`);
         res.write(
-          `data: ${JSON.stringify({ message: "Fetching BestBuy product data..." })}\n\n`,
+          `data: ${JSON.stringify({
+            message: "Fetching BestBuy product data...",
+          })}\n\n`
         );
       }
 
@@ -862,7 +866,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
         if (useSSE) {
           res.write(`event: update\n`);
           res.write(
-            `data: ${JSON.stringify({ message: "Processing HTML content..." })}\n\n`,
+            `data: ${JSON.stringify({
+              message: "Processing HTML content...",
+            })}\n\n`
           );
         }
 
@@ -883,7 +889,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
             `data: ${JSON.stringify({
               message: "Product data extracted",
               productName: finalData.product.name || "Product",
-            })}\n\n`,
+            })}\n\n`
           );
         }
 
@@ -897,7 +903,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
           if (useSSE) {
             res.write(`event: error\n`);
             res.write(
-              `data: ${JSON.stringify({ message: "User or API token not found" })}\n\n`,
+              `data: ${JSON.stringify({
+                message: "User or API token not found",
+              })}\n\n`
             );
             res.end();
           }
@@ -908,7 +916,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
           if (useSSE) {
             res.write(`event: update\n`);
             res.write(
-              `data: ${JSON.stringify({ message: "New product found. Saving to database..." })}\n\n`,
+              `data: ${JSON.stringify({
+                message: "New product found. Saving to database...",
+              })}\n\n`
             );
           }
 
@@ -923,7 +933,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
           ];
 
           const finalParsedData = await parseBestBuyDataForMongoDB(
-            finalData.product,
+            finalData.product
           );
 
           const newProduct = await products.create(finalParsedData);
@@ -946,7 +956,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                     price: newProduct.regularPrice,
                     image: (newProduct.images && newProduct.images[0]) || null,
                   },
-                })}\n\n`,
+                })}\n\n`
               );
             }
           } else {
@@ -954,7 +964,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
             if (useSSE) {
               res.write(`event: error\n`);
               res.write(
-                `data: ${JSON.stringify({ message: "Failed to create new product" })}\n\n`,
+                `data: ${JSON.stringify({
+                  message: "Failed to create new product",
+                })}\n\n`
               );
               res.end();
             }
@@ -963,13 +975,16 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
         } else {
           if (user) {
             console.log(
-              "[crawl.ts:/bb: Existing product, adding to user but not saving to database.",
+              "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
             );
 
             if (useSSE) {
               res.write(`event: update\n`);
               res.write(
-                `data: ${JSON.stringify({ message: "Product already exists in database. Adding to your list..." })}\n\n`,
+                `data: ${JSON.stringify({
+                  message:
+                    "Product already exists in database. Adding to your list...",
+                })}\n\n`
               );
             }
 
@@ -977,7 +992,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
             if (
               !user.products.some(
                 (item) =>
-                  item.product.toString() === existingProduct!._id.toString(),
+                  item.product.toString() === existingProduct!._id.toString()
               )
             ) {
               user.products.push({
@@ -999,12 +1014,12 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                           existingProduct!.images[0]) ||
                         null,
                     },
-                  })}\n\n`,
+                  })}\n\n`
                 );
               }
             } else {
               console.log(
-                "[crawl.ts:/bb: Product already exists in the user's tracked list.",
+                "[crawl.ts:/bb: Product already exists in the user's tracked list."
               );
 
               if (useSSE) {
@@ -1020,7 +1035,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                           existingProduct!.images[0]) ||
                         null,
                     },
-                  })}\n\n`,
+                  })}\n\n`
                 );
               }
             }
@@ -1029,7 +1044,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
             if (useSSE) {
               res.write(`event: update\n`);
               res.write(
-                `data: ${JSON.stringify({ message: "Checking for price updates..." })}\n\n`,
+                `data: ${JSON.stringify({
+                  message: "Checking for price updates...",
+                })}\n\n`
               );
             }
 
@@ -1049,7 +1066,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
               lastPriceEntry?.Number !== finalData.product.regularPrice
             ) {
               console.log(
-                "[crawl.ts:/bb: Existing product: updating price since unequal date",
+                "[crawl.ts:/bb: Existing product: updating price since unequal date"
               );
 
               if (useSSE) {
@@ -1059,7 +1076,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                     message: "Updating product price information",
                     oldPrice: lastPriceEntry?.Number,
                     newPrice: finalData.product.regularPrice,
-                  })}\n\n`,
+                  })}\n\n`
                 );
               }
 
@@ -1075,24 +1092,28 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                   $set: {
                     regularPrice: finalData.product.regularPrice,
                   },
-                },
+                }
               );
 
               if (useSSE) {
                 res.write(`event: update\n`);
                 res.write(
-                  `data: ${JSON.stringify({ message: "Price update complete" })}\n\n`,
+                  `data: ${JSON.stringify({
+                    message: "Price update complete",
+                  })}\n\n`
                 );
               }
             } else {
               console.log(
-                "[crawl.ts:/bb: No update needed: Price and date are the same.",
+                "[crawl.ts:/bb: No update needed: Price and date are the same."
               );
 
               if (useSSE) {
                 res.write(`event: update\n`);
                 res.write(
-                  `data: ${JSON.stringify({ message: "Product price is up to date" })}\n\n`,
+                  `data: ${JSON.stringify({
+                    message: "Product price is up to date",
+                  })}\n\n`
                 );
               }
             }
@@ -1112,7 +1133,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                   (existingProduct!.images && existingProduct!.images[0]) ||
                   null,
               },
-            })}\n\n`,
+            })}\n\n`
           );
           res.end();
         } else {
@@ -1124,7 +1145,10 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
         if (useSSE) {
           res.write(`event: error\n`);
           res.write(
-            `data: ${JSON.stringify({ message: "Error fetching data", error: error instanceof Error ? error.message : String(error) })}\n\n`,
+            `data: ${JSON.stringify({
+              message: "Error fetching data",
+              error: error instanceof Error ? error.message : String(error),
+            })}\n\n`
           );
           res.end();
         } else {
@@ -1139,7 +1163,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
       if (useSSE) {
         res.write(`event: update\n`);
         res.write(
-          `data: ${JSON.stringify({ message: "Fetching Sephora product data..." })}\n\n`,
+          `data: ${JSON.stringify({
+            message: "Fetching Sephora product data...",
+          })}\n\n`
         );
       }
 
@@ -1149,7 +1175,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
         if (useSSE) {
           res.write(`event: update\n`);
           res.write(
-            `data: ${JSON.stringify({ message: "Processing product data..." })}\n\n`,
+            `data: ${JSON.stringify({
+              message: "Processing product data...",
+            })}\n\n`
           );
         }
 
@@ -1180,7 +1208,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
             `data: ${JSON.stringify({
               message: "Product data extracted",
               productName: finalData.name,
-            })}\n\n`,
+            })}\n\n`
           );
         }
 
@@ -1193,7 +1221,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
           if (useSSE) {
             res.write(`event: error\n`);
             res.write(
-              `data: ${JSON.stringify({ message: "User not found and no API token" })}\n\n`,
+              `data: ${JSON.stringify({
+                message: "User not found and no API token",
+              })}\n\n`
             );
             res.end();
           } else {
@@ -1208,7 +1238,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
           if (useSSE) {
             res.write(`event: update\n`);
             res.write(
-              `data: ${JSON.stringify({ message: "New product found. Saving to database..." })}\n\n`,
+              `data: ${JSON.stringify({
+                message: "New product found. Saving to database...",
+              })}\n\n`
             );
           }
 
@@ -1232,14 +1264,16 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                     price: newProduct.regularPrice,
                     image: (newProduct.images && newProduct.images[0]) || null,
                   },
-                })}\n\n`,
+                })}\n\n`
               );
             }
           } else {
             if (useSSE) {
               res.write(`event: error\n`);
               res.write(
-                `data: ${JSON.stringify({ message: "Failed to create new product" })}\n\n`,
+                `data: ${JSON.stringify({
+                  message: "Failed to create new product",
+                })}\n\n`
               );
               res.end();
             }
@@ -1250,19 +1284,22 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
             if (useSSE) {
               res.write(`event: update\n`);
               res.write(
-                `data: ${JSON.stringify({ message: "Product already exists in database. Adding to your list..." })}\n\n`,
+                `data: ${JSON.stringify({
+                  message:
+                    "Product already exists in database. Adding to your list...",
+                })}\n\n`
               );
             }
 
             console.log(
-              "[crawl.ts:/bb: Existing product, adding to user but not saving to database.",
+              "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
             );
 
             // Add the existing product to the user's tracked products
             if (
               !user.products.some(
                 (item) =>
-                  item.product.toString() === existingProduct!._id.toString(),
+                  item.product.toString() === existingProduct!._id.toString()
               )
             ) {
               user.products.push({
@@ -1284,12 +1321,12 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                           existingProduct!.images[0]) ||
                         null,
                     },
-                  })}\n\n`,
+                  })}\n\n`
                 );
               }
             } else {
               console.log(
-                "[crawl.ts:/bb: Product already exists in the user's tracked list.",
+                "[crawl.ts:/bb: Product already exists in the user's tracked list."
               );
 
               if (useSSE) {
@@ -1305,7 +1342,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                           existingProduct!.images[0]) ||
                         null,
                     },
-                  })}\n\n`,
+                  })}\n\n`
                 );
               }
             }
@@ -1314,7 +1351,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
             if (useSSE) {
               res.write(`event: update\n`);
               res.write(
-                `data: ${JSON.stringify({ message: "Checking for price updates..." })}\n\n`,
+                `data: ${JSON.stringify({
+                  message: "Checking for price updates...",
+                })}\n\n`
               );
             }
 
@@ -1334,7 +1373,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
               lastPriceEntry?.Number !== finalData.regularPrice
             ) {
               console.log(
-                "[crawl.ts:/bb: Existing product: updating price since unequal date",
+                "[crawl.ts:/bb: Existing product: updating price since unequal date"
               );
 
               if (useSSE) {
@@ -1344,7 +1383,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                     message: "Updating product price information",
                     oldPrice: lastPriceEntry?.Number,
                     newPrice: finalData.regularPrice,
-                  })}\n\n`,
+                  })}\n\n`
                 );
               }
 
@@ -1360,24 +1399,28 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                   $set: {
                     regularPrice: finalData.regularPrice,
                   },
-                },
+                }
               );
 
               if (useSSE) {
                 res.write(`event: update\n`);
                 res.write(
-                  `data: ${JSON.stringify({ message: "Price update complete" })}\n\n`,
+                  `data: ${JSON.stringify({
+                    message: "Price update complete",
+                  })}\n\n`
                 );
               }
             } else {
               console.log(
-                "[crawl.ts:/bb: No update needed: Price and date are the same.",
+                "[crawl.ts:/bb: No update needed: Price and date are the same."
               );
 
               if (useSSE) {
                 res.write(`event: update\n`);
                 res.write(
-                  `data: ${JSON.stringify({ message: "Product price is up to date" })}\n\n`,
+                  `data: ${JSON.stringify({
+                    message: "Product price is up to date",
+                  })}\n\n`
                 );
               }
             }
@@ -1397,7 +1440,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                   (existingProduct!.images && existingProduct!.images[0]) ||
                   null,
               },
-            })}\n\n`,
+            })}\n\n`
           );
           res.end();
         } else {
@@ -1409,7 +1452,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
         if (useSSE) {
           res.write(`event: error\n`);
           res.write(
-            `data: ${JSON.stringify({ message: error.message || "Error fetching Sephora data" })}\n\n`,
+            `data: ${JSON.stringify({
+              message: error.message || "Error fetching Sephora data",
+            })}\n\n`
           );
           res.end();
         } else {
@@ -1426,7 +1471,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
       if (useSSE) {
         res.write(`event: update\n`);
         res.write(
-          `data: ${JSON.stringify({ message: "Processing generic website..." })}\n\n`,
+          `data: ${JSON.stringify({
+            message: "Processing generic website...",
+          })}\n\n`
         );
       }
 
@@ -1435,7 +1482,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
         if (useSSE) {
           res.write(`event: update\n`);
           res.write(
-            `data: ${JSON.stringify({ message: "Scraping website content..." })}\n\n`,
+            `data: ${JSON.stringify({
+              message: "Scraping website content...",
+            })}\n\n`
           );
         }
 
@@ -1443,7 +1492,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
       } catch (scrapeError: any) {
         console.error(
           `[crawl.ts] - Error during universalScrapeJS for ${url}:`,
-          scrapeError.message,
+          scrapeError.message
         );
 
         if (useSSE) {
@@ -1452,7 +1501,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
             `data: ${JSON.stringify({
               message: `Scraping failed for ${url}`,
               error: scrapeError.message,
-            })}\n\n`,
+            })}\n\n`
           );
           res.end();
         } else {
@@ -1470,7 +1519,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
         if (useSSE) {
           res.write(`event: error\n`);
           res.write(
-            `data: ${JSON.stringify({ message: `No data could be scraped for ${url}` })}\n\n`,
+            `data: ${JSON.stringify({
+              message: `No data could be scraped for ${url}`,
+            })}\n\n`
           );
           res.end();
         } else {
@@ -1486,7 +1537,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
         if (useSSE) {
           res.write(`event: update\n`);
           res.write(
-            `data: ${JSON.stringify({ message: "Analyzing product information with AI..." })}\n\n`,
+            `data: ${JSON.stringify({
+              message: "Analyzing product information with AI...",
+            })}\n\n`
           );
         }
 
@@ -1494,7 +1547,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
       } catch (aiError: any) {
         console.error(
           `[crawl.ts] - Error during finalizeWithAi for ${url}:`,
-          aiError.message,
+          aiError.message
         );
 
         if (useSSE) {
@@ -1503,7 +1556,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
             `data: ${JSON.stringify({
               message: `AI processing failed for ${url}`,
               error: aiError.message,
-            })}\n\n`,
+            })}\n\n`
           );
           res.end();
         } else {
@@ -1521,7 +1574,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
         if (useSSE) {
           res.write(`event: error\n`);
           res.write(
-            `data: ${JSON.stringify({ message: `AI processing returned no content for ${url}` })}\n\n`,
+            `data: ${JSON.stringify({
+              message: `AI processing returned no content for ${url}`,
+            })}\n\n`
           );
           res.end();
         } else {
@@ -1539,7 +1594,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
         if (useSSE) {
           res.write(`event: update\n`);
           res.write(
-            `data: ${JSON.stringify({ message: "Processing AI analysis results..." })}\n\n`,
+            `data: ${JSON.stringify({
+              message: "Processing AI analysis results...",
+            })}\n\n`
           );
         }
 
@@ -1547,7 +1604,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
         finalData = parsedData as aiProductData;
       } catch (error: any) {
         console.log(
-          `[crawl-ts] - Failed to parse AI response for ${url}: ${error.message}`,
+          `[crawl-ts] - Failed to parse AI response for ${url}: ${error.message}`
         );
 
         if (useSSE) {
@@ -1556,7 +1613,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
             `data: ${JSON.stringify({
               message: `Failed to parse AI response for ${url}`,
               error: error.message,
-            })}\n\n`,
+            })}\n\n`
           );
           res.end();
         } else {
@@ -1576,7 +1633,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
           `data: ${JSON.stringify({
             message: "Product information extracted",
             productName: finalData.name,
-          })}\n\n`,
+          })}\n\n`
         );
       }
 
@@ -1591,7 +1648,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
         if (useSSE) {
           res.write(`event: error\n`);
           res.write(
-            `data: ${JSON.stringify({ message: "User not found and no API token" })}\n\n`,
+            `data: ${JSON.stringify({
+              message: "User not found and no API token",
+            })}\n\n`
           );
           res.end();
         } else {
@@ -1604,7 +1663,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
         if (useSSE) {
           res.write(`event: update\n`);
           res.write(
-            `data: ${JSON.stringify({ message: "New product found. Saving to database..." })}\n\n`,
+            `data: ${JSON.stringify({
+              message: "New product found. Saving to database...",
+            })}\n\n`
           );
         }
 
@@ -1642,7 +1703,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                       ? newProduct.images[0]
                       : null,
                 },
-              })}\n\n`,
+              })}\n\n`
             );
           }
         } else {
@@ -1651,7 +1712,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
           if (useSSE) {
             res.write(`event: error\n`);
             res.write(
-              `data: ${JSON.stringify({ message: "Failed to create new product" })}\n\n`,
+              `data: ${JSON.stringify({
+                message: "Failed to create new product",
+              })}\n\n`
             );
             res.end();
           } else {
@@ -1664,19 +1727,22 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
           if (useSSE) {
             res.write(`event: update\n`);
             res.write(
-              `data: ${JSON.stringify({ message: "Product already exists in database. Adding to your list..." })}\n\n`,
+              `data: ${JSON.stringify({
+                message:
+                  "Product already exists in database. Adding to your list...",
+              })}\n\n`
             );
           }
 
           console.log(
-            "[crawl.ts:/bb: Existing product, adding to user but not saving to database.",
+            "[crawl.ts:/bb: Existing product, adding to user but not saving to database."
           );
 
           // Add the existing product to the user's tracked products
           if (
             !user.products.some(
               (item) =>
-                item.product.toString() === existingProduct?._id.toString(),
+                item.product.toString() === existingProduct?._id.toString()
             )
           ) {
             user.products.push({
@@ -1699,12 +1765,12 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                         ? existingProduct!.images[0]
                         : null,
                   },
-                })}\n\n`,
+                })}\n\n`
               );
             }
           } else {
             console.log(
-              "[crawl.ts:/bb: Product already exists in the user's tracked list.",
+              "[crawl.ts:/bb: Product already exists in the user's tracked list."
             );
 
             if (useSSE) {
@@ -1721,7 +1787,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                         ? existingProduct!.images[0]
                         : null,
                   },
-                })}\n\n`,
+                })}\n\n`
               );
             }
           }
@@ -1730,7 +1796,9 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
           if (useSSE) {
             res.write(`event: update\n`);
             res.write(
-              `data: ${JSON.stringify({ message: "Checking for price updates..." })}\n\n`,
+              `data: ${JSON.stringify({
+                message: "Checking for price updates...",
+              })}\n\n`
             );
           }
 
@@ -1750,7 +1818,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
             lastPriceEntry?.Number !== finalData.regularPrice
           ) {
             console.log(
-              "[crawl.ts:/bb: Existing product: updating price since unequal date",
+              "[crawl.ts:/bb: Existing product: updating price since unequal date"
             );
 
             if (useSSE) {
@@ -1760,7 +1828,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                   message: "Updating product price information",
                   oldPrice: lastPriceEntry?.Number,
                   newPrice: finalData.regularPrice,
-                })}\n\n`,
+                })}\n\n`
               );
             }
 
@@ -1776,24 +1844,28 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                 $set: {
                   regularPrice: finalData.regularPrice,
                 },
-              },
+              }
             );
 
             if (useSSE) {
               res.write(`event: update\n`);
               res.write(
-                `data: ${JSON.stringify({ message: "Price update complete" })}\n\n`,
+                `data: ${JSON.stringify({
+                  message: "Price update complete",
+                })}\n\n`
               );
             }
           } else {
             console.log(
-              "[crawl.ts:/bb: No update needed: Price and date are the same.",
+              "[crawl.ts:/bb: No update needed: Price and date are the same."
             );
 
             if (useSSE) {
               res.write(`event: update\n`);
               res.write(
-                `data: ${JSON.stringify({ message: "Product price is up to date" })}\n\n`,
+                `data: ${JSON.stringify({
+                  message: "Product price is up to date",
+                })}\n\n`
               );
             }
           }
@@ -1816,7 +1888,7 @@ router.get("/BC", async (req: Request, res: Response): Promise<void> => {
                   ? existingProduct!.images[0]
                   : null,
             },
-          })}\n\n`,
+          })}\n\n`
         );
         res.end();
       } else {
