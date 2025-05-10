@@ -1,9 +1,7 @@
-import { log } from "node:console";
 import { OpenAI } from "openai";
 import random_user_agent from "../scrapes/agents";
 import axios from "axios";
 import puppeteer from "puppeteer-core";
-import dotenv from "dotenv";
 import { appConfigs } from "../configs/appconfigs";
 
 interface sephoraSkuData {
