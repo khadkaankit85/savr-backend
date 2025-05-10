@@ -1,7 +1,7 @@
 import { OpenAI } from "openai";
 import random_user_agent from "../scrapes/agents";
 import axios from "axios";
-import puppeteer from "puppeteer-core";
+import puppeteer from "puppeteer-extra";
 import { appConfigs } from "../configs/appconfigs";
 
 interface sephoraSkuData {

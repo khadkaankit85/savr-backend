@@ -1,10 +1,8 @@
 import axios from "axios";
 import random_user_agent from "../scrapes/agents";
 import { log } from "console";
-import fs, { write } from "fs";
-import cheerio from "cheerio";
 import { JSDOM } from "jsdom";
-import puppeteer from "puppeteer-core";
+import puppeteer from "puppeteer-extra";
 import dotenv from "dotenv";
 import { appConfigs } from "../configs/appconfigs";
 
